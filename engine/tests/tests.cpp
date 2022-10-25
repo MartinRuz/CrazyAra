@@ -40,6 +40,8 @@ using namespace std;
 #include "environments/chess_related/sfutil.h"
 #include "thread.h"
 #include "constants.h"
+#include "node.h"
+#include "nodedata.h"
 #include "environments/chess_related/inputrepresentation.h"
 #include "legacyconstants.h"
 #include "util/blazeutil.h"
@@ -80,15 +82,15 @@ PlaneStatistics get_stats_from_input_planes(const float* inputPlanes)
 }
 
 PlaneStatistics get_planes_statistics(const StateObj& state, bool normalize) {
-    float inputPlanes[StateConstants::NB_VALUES_TOTAL()];
-    state.get_state_planes(normalize, inputPlanes, StateConstants::CURRENT_VERSION());
-    return get_stats_from_input_planes(inputPlanes);
+    vector<float> inputPlanes(StateConstants::NB_VALUES_TOTAL());
+    state.get_state_planes(normalize, inputPlanes.data(), StateConstants::CURRENT_VERSION());
+    return get_stats_from_input_planes(inputPlanes.data());
 }
 
 PlaneStatistics get_planes_statistics(const Board& pos, bool normalize) {
-    float inputPlanes[StateConstants::NB_VALUES_TOTAL()];
-    board_to_planes(&pos, pos.number_repetitions(), normalize, inputPlanes, StateConstants::CURRENT_VERSION());
-    return get_stats_from_input_planes(inputPlanes);
+    vector<float> inputPlanes(StateConstants::NB_VALUES_TOTAL());
+    board_to_planes(&pos, pos.number_repetitions(), normalize, inputPlanes.data(), StateConstants::CURRENT_VERSION());
+    return get_stats_from_input_planes(inputPlanes.data());
 }
 
 void get_planes_statistics(const Board* pos, bool normalize, double& sum, double& maxNum, double& key, size_t& argMax) {
@@ -174,6 +176,20 @@ TEST_CASE("Anti-Chess StartFEN"){
     REQUIRE(stats.key == 417296);
 }
 #endif
+
+TEST_CASE("Qvalue_calculation") {
+    float q = 0.7;
+    float vl = 3.;
+    float val = 0.4;
+    int n = 7;
+    bool b = false;
+    ChildIdx id = 0;
+    StateObj* obj = nullptr;
+    SearchSettings* settings = nullptr;
+    Node node = Node(obj, settings);
+    //node.add_empty_node();
+    node.revert_virtual_loss_and_update<false>(id, val, vl, b);
+}
 
 TEST_CASE("PGN_Move_Ambiguity"){
     init();
@@ -637,7 +653,7 @@ GameInfo apply_random_moves(StateObj& state, uint movesToApply) {
             gameInfo.reachedTerminal = true;
             return gameInfo;
         }
-        const Action randomAction = actions[random() % actions.size()];
+        const Action randomAction = actions[rand() % actions.size()];
         state.do_action(randomAction);
         ++gameInfo.nbAppliedMoves;
     }

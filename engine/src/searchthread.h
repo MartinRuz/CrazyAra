@@ -171,7 +171,7 @@ private:
     void backup_collisions();
 
     /**
-     * @brief get_new_child_to_evaluate Traverses the search tree beginning from the root node and returns the prarent node and child index for the next node to expand.
+     * @brief get_new_child_to_evaluate Traverses the search tree beginning from the root node and returns the parent node and child index for the next node to expand.
      * @param description Output struct which holds information what type of node it is
      * @return Pointer to next child to evaluate (can also be terminal or tranposition node in which case no NN eval is required)
      */
