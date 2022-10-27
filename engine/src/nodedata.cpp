@@ -31,7 +31,7 @@ void NodeData::add_empty_node()
 {
     append(childNumberVisits, 0U);
     append(qValues, Q_INIT);
-    append(sumPowerAvg, 0.0f);
+    append(powerSumAvg, 0.0f);
     append(stdDev, 0.0f);
     append(virtualLossCounter, uint8_t(0));
     append(nodeTypes, UNSOLVED);
@@ -49,7 +49,7 @@ void NodeData::reserve_initial_space()
     // u: exploration metric for each child node
     // (the q and u values are stacked into 1 list in order to speed-up the argmax() operation
     qValues.reserve(initSize);
-    sumPowerAvg.reserve(initSize);
+    powerSumAvg.reserve(initSize);
     stdDev.reserve(initSize);
 
     childNodes.reserve(initSize);

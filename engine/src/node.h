@@ -190,6 +190,14 @@ public:
     void revert_virtual_loss_and_update(ChildIdx childIdx, float value, float virtualLoss, bool solveForTerminal)
     {
         lock();
+        info_string("before");
+        info_string(childIdx);
+        info_string(value);
+        info_string(virtualLoss);
+        info_string(d->qValues[childIdx]);
+        info_string(d->childNumberVisits[childIdx]);
+        info_string(d->powerSumAvg[childIdx]);
+        info_string(d->stdDev[childIdx]);
         // decrement virtual loss counter
         update_virtual_loss_counter<false>(childIdx, virtualLoss);
 
@@ -200,12 +208,8 @@ public:
             // set new Q-value based on return
             // (the initialization of the Q-value was by Q_INIT which we don't want to recover.)
             d->qValues[childIdx] = value;
-            d->sumPowerAvg[childIdx] = value * value;
+            d->powerSumAvg[childIdx] = value * value;
             d->stdDev[childIdx] = 0;
-            if (virtualLoss != 1) {
-                d->childNumberVisits[childIdx] -= size_t(virtualLoss) - 1;
-                d->visitSum -= size_t(virtualLoss) - 1;
-            }
         }
         else {
             // revert virtual loss and update the Q-value
@@ -215,17 +219,33 @@ public:
             // https://subluminal.wordpress.com/2008/07/31/running-standard-deviations/#more-15
             // childNumberVisits[childIdx] is still rescaled by the virtualLoss, which we don't want for the sumPowerAvg
             // so we need (d->childNumberVisits[childIdx] - size_t(virtualLoss) + 1)
-            if (virtualLoss != 1) {
-                d->childNumberVisits[childIdx] -= size_t(virtualLoss) - 1;
-                d->visitSum -= size_t(virtualLoss) - 1;
+            
+            d->powerSumAvg[childIdx] += (value * value - d->powerSumAvg[childIdx]) / d->childNumberVisits[childIdx];
+            if (d->childNumberVisits[childIdx] > 1) {
+                //info_string("start");
+                //info_string(d->stdDev[childIdx]);
+                //info_string(d->childNumberVisits[childIdx]);
+                //info_string(d->qValues[childIdx]);
+                //info_string(d->sumPowerAvg[childIdx]);
+                d->stdDev[childIdx] = sqrt((d->childNumberVisits[childIdx] * (d->powerSumAvg[childIdx] - d->qValues[childIdx] * d->qValues[childIdx])) / (d->childNumberVisits[childIdx] - 1));
+                //info_string(d->stdDev[childIdx]);
             }
-            d->sumPowerAvg[childIdx] += (value * value - d->sumPowerAvg[childIdx]) / d->childNumberVisits[childIdx]; 
-            if (d->childNumberVisits[childIdx] > 2) {
-                d->stdDev[childIdx] = sqrt((d->childNumberVisits[childIdx] * d->sumPowerAvg[childIdx] - d->childNumberVisits[childIdx] * d->qValues[childIdx] * d->qValues[childIdx]) / (d->childNumberVisits[childIdx] - 1));
-            }
+            
             assert(!isnan(d->qValues[childIdx]));
         }
+        info_string("after");
+        info_string(childIdx);
+        info_string(value);
+        info_string(virtualLoss);
+        info_string(d->qValues[childIdx]);
+        info_string(d->childNumberVisits[childIdx]);
+        info_string(d->powerSumAvg[childIdx]);
+        info_string(d->stdDev[childIdx]);
 
+        if (virtualLoss != 1) {
+            d->childNumberVisits[childIdx] -= size_t(virtualLoss) - 1;
+            d->visitSum -= size_t(virtualLoss) - 1;
+        }
         
         if (freeBackup) {
             ++d->freeVisits;

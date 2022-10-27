@@ -67,15 +67,15 @@ void OptionsUCI::init(OptionsMap &o)
 {
     o["Allow_Early_Stopping"]          << Option(true);
 #ifdef USE_RL
-    o["Batch_Size"]                    << Option(8, 1, 8192);
+    o["Batch_Size"]                    << Option(1, 1, 8192);
 #else
 #ifdef OPENVINO
-    o["Batch_Size"]                    << Option(16, 1, 8192);
+    o["Batch_Size"]                    << Option(1, 1, 8192);
 #else
 #ifdef MODE_CHESS
-    o["Batch_Size"]                    << Option(64, 1, 8192);
+    o["Batch_Size"]                    << Option(1, 1, 8192);
 #else
-    o["Batch_Size"]                    << Option(16, 1, 8192);
+    o["Batch_Size"]                    << Option(1, 1, 8192);
 #endif
 #endif
 #endif
@@ -179,9 +179,9 @@ void OptionsUCI::init(OptionsMap &o)
     o["SyzygyPath"]                    << Option("<empty>", on_tb_path);
 #endif
 #endif
-    o["Threads"]                       << Option(2, 1, 512);
+    o["Threads"]                       << Option(1, 1, 512);
 #ifdef OPENVINO
-    o["Threads_NN_Inference"]          << Option(8, 1, 512);
+    o["Threads_NN_Inference"]          << Option(1, 1, 512);
 #endif
     o["Timeout_MS"]                    << Option(0, 0, 99999999);
 #ifdef MODE_LICHESS
