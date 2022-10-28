@@ -479,6 +479,16 @@ float Node::get_q_value(ChildIdx childIdx) const
     return d->qValues[childIdx];
 }
 
+float Node::get_std_value(ChildIdx childIdx) const
+{
+    return d->stdDev[childIdx];
+}
+
+float Node::get_power_sum_avg(ChildIdx childIdx) const
+{
+    return d->powerSumAvg[childIdx];
+}
+
 DynamicVector<float> Node::get_q_values() const
 {
     return d->qValues;
@@ -974,7 +984,7 @@ DynamicVector<float> Node::get_current_u_values(const SearchSettings* searchSett
 #elif SEARCH_VARIANCE
     //info_string("search_variance");
     //info_string(d->stdDev);
-    return d->stdDev * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum) / (d->childNumberVisits + 1.0));
+    return get_current_cput(d->visitSum, searchSettings) * blaze::subvector(d->stdDev, 0, d->noVisitIdx) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum) / (d->childNumberVisits + 1.0));
 #else
     return get_current_cput(d->visitSum, searchSettings) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum) / (d->childNumberVisits + 1.0));
 #endif

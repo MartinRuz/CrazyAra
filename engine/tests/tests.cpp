@@ -46,6 +46,7 @@ using namespace std;
 #include "legacyconstants.h"
 #include "util/blazeutil.h"
 #include "environments/chess_related/boardstate.h"
+#include "searchthread.h"
 using namespace OptionsUCI;
 
 #ifdef SF_DEPENDENCY
@@ -177,19 +178,6 @@ TEST_CASE("Anti-Chess StartFEN"){
 }
 #endif
 
-TEST_CASE("Qvalue_calculation") {
-    float q = 0.7;
-    float vl = 3.;
-    float val = 0.4;
-    int n = 7;
-    bool b = false;
-    ChildIdx id = 0;
-    StateObj* obj = nullptr;
-    SearchSettings* settings = nullptr;
-    Node node = Node(obj, settings);
-    //node.add_empty_node();
-    node.revert_virtual_loss_and_update<false>(id, val, vl, b);
-}
 
 TEST_CASE("PGN_Move_Ambiguity"){
     init();
@@ -664,6 +652,42 @@ void apply_given_moves(StateObj& state, const std::vector<string>& uciMoves) {
     for (string uciMove: uciMoves) {
         state.do_action(state.uci_to_action(uciMove));
     }
+}
+
+TEST_CASE("Q_std_value_calculation") {
+    float virtualLoss = 1.;
+    float value = 4; //0.4;
+    bool solveForTerminal = false;
+    ChildIdx childIdx = 0;
+    StateObj state;
+//    state.set("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", false, get_default_variant());
+    state.init(get_default_variant(), false);
+//    info_string(state.fen());
+//    StateObj* obj = nullptr;
+    SearchSettings settings; // = nullptr;
+    Node node = Node(&state, &settings);
+    //node.add_empty_node();
+    float valueOutputs = 0.5;
+    vector<float> probOutputs(20);
+    float auxiliaryOutputs;
+    size_t tbHits = 0;
+    fill_nn_results(0, true, &valueOutputs, probOutputs.data(), &auxiliaryOutputs, &node, tbHits, false, &settings, false);
+    node.prepare_node_for_visits();
+    node.apply_virtual_loss_to_child(0, 1);
+    node.revert_virtual_loss_and_update<false>(childIdx, value, virtualLoss, solveForTerminal);
+    REQUIRE(node.get_std_value(0) == 0);
+    REQUIRE(node.get_power_sum_avg(0) == 16);
+    node.apply_virtual_loss_to_child(0, 1);
+    node.revert_virtual_loss_and_update<false>(childIdx, value, virtualLoss, solveForTerminal);
+
+    REQUIRE(node.get_std_value(0) == 0);
+    REQUIRE(node.get_power_sum_avg(0) == 16);
+    node.apply_virtual_loss_to_child(0, 1);
+    node.revert_virtual_loss_and_update<false>(childIdx, 1, virtualLoss, solveForTerminal);
+    REQUIRE(abs(node.get_std_value(0) - sqrt(3)) <= 0.001);
+    REQUIRE(node.get_power_sum_avg(0) == 11);
+    const vector<size_t> customOrdering;
+    node.print_node_statistics(&state, customOrdering);
 }
 
 TEST_CASE("State: steps_from_null()"){

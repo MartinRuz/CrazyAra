@@ -452,10 +452,24 @@ public:
 
     /**
      * @brief get_q_value Returns the Q-value for the given child index
-     * @param idx Child Index
+     * @param childIdx Child Index
      * @return Q-value
      */
-    float get_q_value(ChildIdx idx) const;
+    float get_q_value(ChildIdx childIdx) const;
+
+    /**
+     * @brief get_std_value Returns the standard deviation for the given child index
+     * @param childIdx Child index
+     * @return standard deviation
+     */
+    float get_std_value(ChildIdx childIdx) const;
+
+    /**
+     * @brief get_power_sum_avg Returns the power sum average for the given child index
+     * @param childIdx Child index
+     * @return power sum average
+     */
+    float get_power_sum_avg(ChildIdx childIdx) const;
 
     /**
      * @brief get_q_values Returns the Q-values for all child nodes
