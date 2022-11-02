@@ -190,14 +190,7 @@ public:
     void revert_virtual_loss_and_update(ChildIdx childIdx, float value, float virtualLoss, bool solveForTerminal)
     {
         lock();
-        info_string("before");
-        info_string(childIdx);
-        info_string(value);
-        info_string(virtualLoss);
-        info_string(d->qValues[childIdx]);
-        info_string(d->childNumberVisits[childIdx]);
-        info_string(d->powerSumAvg[childIdx]);
-        info_string(d->stdDev[childIdx]);
+        
         // decrement virtual loss counter
         update_virtual_loss_counter<false>(childIdx, virtualLoss);
 
@@ -222,25 +215,12 @@ public:
             
             d->powerSumAvg[childIdx] += (value * value - d->powerSumAvg[childIdx]) / d->childNumberVisits[childIdx];
             if (d->childNumberVisits[childIdx] > 1) {
-                //info_string("start");
-                //info_string(d->stdDev[childIdx]);
-                //info_string(d->childNumberVisits[childIdx]);
-                //info_string(d->qValues[childIdx]);
-                //info_string(d->sumPowerAvg[childIdx]);
                 d->stdDev[childIdx] = sqrt((d->childNumberVisits[childIdx] * (d->powerSumAvg[childIdx] - d->qValues[childIdx] * d->qValues[childIdx])) / (d->childNumberVisits[childIdx] - 1));
-                //info_string(d->stdDev[childIdx]);
             }
             
             assert(!isnan(d->qValues[childIdx]));
+            assert(!isnan(d->stdDev[childIdx]));
         }
-        info_string("after");
-        info_string(childIdx);
-        info_string(value);
-        info_string(virtualLoss);
-        info_string(d->qValues[childIdx]);
-        info_string(d->childNumberVisits[childIdx]);
-        info_string(d->powerSumAvg[childIdx]);
-        info_string(d->stdDev[childIdx]);
 
         if (virtualLoss != 1) {
             d->childNumberVisits[childIdx] -= size_t(virtualLoss) - 1;

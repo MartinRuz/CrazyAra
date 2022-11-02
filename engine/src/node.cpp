@@ -982,9 +982,9 @@ DynamicVector<float> Node::get_current_u_values(const SearchSettings* searchSett
 #ifdef SEARCH_UCT
     return searchSettings->cpuctInit * (sqrt(log(d->visitSum)) / (d->childNumberVisits + FLT_EPSILON));
 #elif SEARCH_VARIANCE
-    //info_string("search_variance");
-    //info_string(d->stdDev);
-    return get_current_cput(d->visitSum, searchSettings) * blaze::subvector(d->stdDev, 0, d->noVisitIdx) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum) / (d->childNumberVisits + 1.0));
+    //offset 0.001 serves to make the term non-zero when not having performed any visits.
+    //the max(0.01,cput-offset) serves the same purpose, when the node has not been visited yet, so variance is 0)
+    return 0.001 + (std::max(0.01, get_current_cput(d->visitSum, searchSettings) - 0.1) + blaze::subvector(d->stdDev, 0, d->noVisitIdx)) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum) / (d->childNumberVisits + 1.0));
 #else
     return get_current_cput(d->visitSum, searchSettings) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum) / (d->childNumberVisits + 1.0));
 #endif
