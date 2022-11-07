@@ -188,15 +188,15 @@ public:
      */
     template<bool freeBackup>
     void revert_virtual_loss_and_update(ChildIdx childIdx, float value, float virtualLoss, bool solveForTerminal)
-    {
+    {/*
         lock();
-        
+        /*
         // decrement virtual loss counter
         update_virtual_loss_counter<false>(childIdx, virtualLoss);
 
         valueSum += value;
         ++realVisitsSum;
-
+        /*
         if (d->childNumberVisits[childIdx] == virtualLoss) {
             // set new Q-value based on return
             // (the initialization of the Q-value was by Q_INIT which we don't want to recover.)
@@ -213,15 +213,15 @@ public:
             // childNumberVisits[childIdx] is still rescaled by the virtualLoss, which we don't want for the sumPowerAvg
             // so we need (d->childNumberVisits[childIdx] - size_t(virtualLoss) + 1)
             
-            d->powerSumAvg[childIdx] += (value * value - d->powerSumAvg[childIdx]) / d->childNumberVisits[childIdx];
-            if (d->childNumberVisits[childIdx] > 1) {
-                d->stdDev[childIdx] = sqrt((d->childNumberVisits[childIdx] * (d->powerSumAvg[childIdx] - d->qValues[childIdx] * d->qValues[childIdx])) / (d->childNumberVisits[childIdx] - 1));
+           /* d->powerSumAvg[childIdx] += (value * value - d->powerSumAvg[childIdx]) / d->childNumberVisits[childIdx];
+           /* if (d->childNumberVisits[childIdx] > 1) {
+                d->stdDev[childIdx] = sqrt(d->childNumberVisits[childIdx] * (std::fmaxf(0.0, (d->powerSumAvg[childIdx] - d->qValues[childIdx] * d->qValues[childIdx]))) / (d->childNumberVisits[childIdx] - 1));
             }
             
             assert(!isnan(d->qValues[childIdx]));
             assert(!isnan(d->stdDev[childIdx]));
         }
-
+    
         if (virtualLoss != 1) {
             d->childNumberVisits[childIdx] -= size_t(virtualLoss) - 1;
             d->visitSum -= size_t(virtualLoss) - 1;
@@ -233,7 +233,7 @@ public:
         if (solveForTerminal) {
             solve_for_terminal(childIdx);
         }
-        unlock();
+        unlock();*/
     }
 
     /**
