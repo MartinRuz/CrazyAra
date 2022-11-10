@@ -653,7 +653,7 @@ void apply_given_moves(StateObj& state, const std::vector<string>& uciMoves) {
         state.do_action(state.uci_to_action(uciMove));
     }
 }
-
+/*
 TEST_CASE("Q_std_value_calculation") {
     float virtualLoss = 1.;
     float value = 4; //0.4;
@@ -689,7 +689,7 @@ TEST_CASE("Q_std_value_calculation") {
     const vector<size_t> customOrdering;
     node.print_node_statistics(&state, customOrdering);
 }
-
+*/
 TEST_CASE("State: steps_from_null()"){
     srand(42);
     StateObj state;
