@@ -200,8 +200,8 @@ public:
             // set new Q-value based on return
             // (the initialization of the Q-value was by Q_INIT which we don't want to recover.)
             d->qValues[childIdx] = value;
-            d->powerSumAvg[childIdx] = value * value;
-            d->stdDev[childIdx] = 0;
+            //d->powerSumAvg[childIdx] = value * value;
+            //d->stdDev[childIdx] = 0;
         }
         else {
             // revert virtual loss and update the Q-value
@@ -212,13 +212,13 @@ public:
             // childNumberVisits[childIdx] is still rescaled by the virtualLoss, which we don't want for the sumPowerAvg
             // so we need (d->childNumberVisits[childIdx] - size_t(virtualLoss) + 1)
             
-           d->powerSumAvg[childIdx] += (value * value - d->powerSumAvg[childIdx]) / d->childNumberVisits[childIdx];
-           if (d->childNumberVisits[childIdx] > 1) {
+           //d->powerSumAvg[childIdx] += (value * value - d->powerSumAvg[childIdx]) / d->childNumberVisits[childIdx];
+           /*if (d->childNumberVisits[childIdx] > 1) {
                 d->stdDev[childIdx] = sqrt(d->childNumberVisits[childIdx] * (std::fmaxf(0.0, (d->powerSumAvg[childIdx] - d->qValues[childIdx] * d->qValues[childIdx]))) / (d->childNumberVisits[childIdx] - 1));
-            }
+            }*/
             
             assert(!isnan(d->qValues[childIdx]));
-            assert(!isnan(d->stdDev[childIdx]));
+            //assert(!isnan(d->stdDev[childIdx]));
         }
     
         if (virtualLoss != 1) {
