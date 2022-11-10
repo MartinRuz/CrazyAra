@@ -441,14 +441,14 @@ public:
      * @param childIdx Child index
      * @return standard deviation
      */
-    float get_std_value(ChildIdx childIdx) const;
+    //float get_std_value(ChildIdx childIdx) const;
 
     /**
      * @brief get_power_sum_avg Returns the power sum average for the given child index
      * @param childIdx Child index
      * @return power sum average
      */
-    float get_power_sum_avg(ChildIdx childIdx) const;
+    //float get_power_sum_avg(ChildIdx childIdx) const;
 
     /**
      * @brief get_q_values Returns the Q-values for all child nodes

@@ -479,7 +479,7 @@ float Node::get_q_value(ChildIdx childIdx) const
     return d->qValues[childIdx];
 }
 
-float Node::get_std_value(ChildIdx childIdx) const
+/*float Node::get_std_value(ChildIdx childIdx) const
 {
     return d->stdDev[childIdx];
 }
@@ -487,7 +487,7 @@ float Node::get_std_value(ChildIdx childIdx) const
 float Node::get_power_sum_avg(ChildIdx childIdx) const
 {
     return d->powerSumAvg[childIdx];
-}
+}*/
 
 DynamicVector<float> Node::get_q_values() const
 {
@@ -1184,11 +1184,11 @@ void Node::print_node_statistics(const StateObj* state, const vector<size_t>& cu
         const size_t childIdx = customOrdering.size() == get_number_child_nodes() ? customOrdering[idx] : idx;
         size_t n = 0;
         double q = Q_INIT;
-        double std = 0;
+        //double std = 0;
         if (childIdx < d->noVisitIdx) {
             n = d->childNumberVisits[childIdx];
             q = d->qValues[childIdx];
-            std = d->stdDev[childIdx];
+            //std = d->stdDev[childIdx];
         }
 
         const Action move = get_legal_actions()[childIdx];
@@ -1202,7 +1202,7 @@ void Node::print_node_statistics(const StateObj* state, const vector<size_t>& cu
         cout << setw(12) << n << " | "
              << setw(9) << policyProbSmall[childIdx] << " | "
              << setw(10) << max(q, -9.9999999) << " | "
-             << setw(5) << std << " | "
+             //<< setw(5) << std << " | "
              << setw(5) << value_to_centipawn(q) << " | ";
         if (childIdx < get_no_visit_idx() && d->childNodes[childIdx] != nullptr && d->childNodes[childIdx]->d != nullptr && d->childNodes[childIdx]->get_node_type() != UNSOLVED) {
             cout << setfill(' ') << setw(4) <<

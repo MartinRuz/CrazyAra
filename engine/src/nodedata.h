@@ -89,8 +89,8 @@ struct NodeData
 {
     DynamicVector<uint32_t> childNumberVisits;
     DynamicVector<float> qValues;
-    DynamicVector<float> powerSumAvg;
-    DynamicVector<float> stdDev;
+    //DynamicVector<float> powerSumAvg;
+    //DynamicVector<float> stdDev;
     vector<shared_ptr<Node>> childNodes;
     DynamicVector<uint8_t> virtualLossCounter;
     DynamicVector<NodeType> nodeTypes;
