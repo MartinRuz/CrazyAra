@@ -189,7 +189,7 @@ public:
     template<bool freeBackup>
     void revert_virtual_loss_and_update(ChildIdx childIdx, float value, float virtualLoss, bool solveForTerminal)
     {
-        lock()
+        lock();
         // decrement virtual loss counter
         update_virtual_loss_counter<false>(childIdx, virtualLoss);
 
