@@ -81,7 +81,7 @@ PlaneStatistics get_stats_from_input_planes(const float* inputPlanes)
     }
     return stats;
 }
-
+/*
 PlaneStatistics get_planes_statistics(const StateObj& state, bool normalize) {
     vector<float> inputPlanes(StateConstants::NB_VALUES_TOTAL());
     state.get_state_planes(normalize, inputPlanes.data(), StateConstants::CURRENT_VERSION());
@@ -93,7 +93,7 @@ PlaneStatistics get_planes_statistics(const Board& pos, bool normalize) {
     board_to_planes(&pos, pos.number_repetitions(), normalize, inputPlanes.data(), StateConstants::CURRENT_VERSION());
     return get_stats_from_input_planes(inputPlanes.data());
 }
-
+*/
 void get_planes_statistics(const Board* pos, bool normalize, double& sum, double& maxNum, double& key, size_t& argMax) {
     PlaneStatistics stats = get_planes_statistics(*pos, normalize);
     sum = stats.sum;
@@ -630,7 +630,7 @@ TEST_CASE("Blaze: first_and_second_max()"){
 // ==========================================================================================================
 // ||                                   State Environment Tests                                            ||
 // ==========================================================================================================
-
+/*
 GameInfo apply_random_moves(StateObj& state, uint movesToApply) {
     GameInfo gameInfo;
     while (gameInfo.nbAppliedMoves < movesToApply) {
@@ -647,7 +647,7 @@ GameInfo apply_random_moves(StateObj& state, uint movesToApply) {
     }
     return gameInfo;
 }
-
+*/
 void apply_given_moves(StateObj& state, const std::vector<string>& uciMoves) {
     for (string uciMove: uciMoves) {
         state.do_action(state.uci_to_action(uciMove));
