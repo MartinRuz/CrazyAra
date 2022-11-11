@@ -20,7 +20,7 @@ option(MODE_BOARDGAMES           "Build with Fairy-Stockfish environment support
 option(MODE_XIANGQI              "Build with xiangqi only support" OFF)
 option(MODE_STRATEGO             "Build Stratego with open_spiel environment support"  OFF)
 option(SEARCH_UCT                "Build with UCT instead of PUCT search"  OFF)
-#option(SEARCH_VARIANCE           "Build with sqrt(var) used in PUCT search"  ON) #see https://github.com/lightvector/KataGo/blob/master/docs/KataGoMethods.md#dynamic-variance-scaled-cpuct
+option(SEARCH_VARIANCE           "Build with sqrt(var) used in PUCT search"  ON) #see https://github.com/lightvector/KataGo/blob/master/docs/KataGoMethods.md#dynamic-variance-scaled-cpuct
 option(MCTS_STORE_STATES         "Build search by storing the state objects in each node. Results in higher memory usage but faster CPU runtime."  OFF)
 
 add_definitions(-DIS_64BIT)
@@ -127,9 +127,9 @@ if (SEARCH_UCT)
     add_definitions(-DSEARCH_UCT)
 endif()
 
-#if (SEARCH_VARIANCE)
- #   add_definitions(-DSEARCH_VARIANCE)
-#endif()
+if (SEARCH_VARIANCE)
+    add_definitions(-DSEARCH_VARIANCE)
+endif()
 
 if (MCTS_STORE_STATES)
     add_definitions(-DMCTS_STORE_STATES)
