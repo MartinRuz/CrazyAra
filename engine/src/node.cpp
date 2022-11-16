@@ -984,7 +984,7 @@ DynamicVector<float> Node::get_current_u_values(const SearchSettings* searchSett
 #elif SEARCH_VARIANCE
     //offset 0.001 serves to make the term non-zero when not having performed any visits.
     //the max(0.01,cput-offset) serves the same purpose, when the node has not been visited yet, so variance is 0)
-    return 0.001 + (std::max(0.01, get_current_cput(d->visitSum, searchSettings) - 0.1) + blaze::subvector(d->stdDev, 0, d->noVisitIdx)) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum) / (d->childNumberVisits + 1.0));
+    return get_variance_cput(d->visitSum, searchSettings) * blaze::subvector(d->stdDev, 0, d->noVisitIdx) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum + 0.01) / (d->childNumberVisits + 1.0));
 #else
     return get_current_cput(d->visitSum, searchSettings) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum) / (d->childNumberVisits + 1.0));
 #endif
@@ -1171,6 +1171,11 @@ float get_visits(Node* node)
 float get_current_cput(float visits, const SearchSettings* searchSettings)
 {
     return log((visits + searchSettings->cpuctBase + 1) / searchSettings->cpuctBase) + searchSettings->cpuctInit;
+}
+
+float get_variance_cput(float visits, const SearchSettings* searchSettings)
+{
+    return 1 + 0, 45 * log((visits + 500) / 500);
 }
 
 void Node::print_node_statistics(const StateObj* state, const vector<size_t>& customOrdering) const

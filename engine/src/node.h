@@ -212,8 +212,8 @@ public:
             // childNumberVisits[childIdx] is still rescaled by the virtualLoss, which we don't want for the sumPowerAvg
             // so we need (d->childNumberVisits[childIdx] - size_t(virtualLoss) + 1)
             
-           d->powerSumAvg[childIdx] += (value * value - d->powerSumAvg[childIdx]) / d->childNumberVisits[childIdx];
-           if (d->childNumberVisits[childIdx] > 1) {
+            d->powerSumAvg[childIdx] += (value * value - d->powerSumAvg[childIdx]) / d->childNumberVisits[childIdx];
+            if (d->childNumberVisits[childIdx] > 1) {
                 d->stdDev[childIdx] = sqrt(d->childNumberVisits[childIdx] * (std::fmaxf(0.0, (d->powerSumAvg[childIdx] - d->qValues[childIdx] * d->qValues[childIdx]))) / (d->childNumberVisits[childIdx] - 1));
             }
            
@@ -755,6 +755,11 @@ DynamicVector<float> retrieve_dynamic_vector(const vector<Node*>& childNodes, vF
  * @return float
  */
 float get_current_cput(float visits, const SearchSettings* searchSettings);
+
+/**
+* @brief get_variance_cput Calculates the current cpuct value factor for this node based on the total node visits in the context of using variance
+*/
+float get_variance_cput(float visits, const SearchSettings* searchSettings);
 
 /**
  * @brief get_current_u_divisor Calculates the current u-initialization-divisor factor for this node based on the total node visits
