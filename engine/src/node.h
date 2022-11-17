@@ -213,8 +213,10 @@ public:
             // so we need (d->childNumberVisits[childIdx] - size_t(virtualLoss) + 1)
             
             d->powerSumAvg[childIdx] += (value * value - d->powerSumAvg[childIdx]) / d->childNumberVisits[childIdx];
+            d->powerSumAvg[childIdx] += 
             if (d->childNumberVisits[childIdx] > 1) {
-                d->stdDev[childIdx] = sqrt(d->childNumberVisits[childIdx] * (std::fmaxf(0.0, (d->powerSumAvg[childIdx] - d->qValues[childIdx] * d->qValues[childIdx]))) / (d->childNumberVisits[childIdx] - 1));
+                d->stdDev[childIdx] = sqrt((2 * (d->qValues[childIdx] * d->qValues[childIdx] + 0.16) + d->powerSumAvg[childIdx] * d->visitSum) / (d->visitSum + 1)) - d->qValues[childIdx] * d->qValues[childIdx];
+                //sqrt(d->childNumberVisits[childIdx] * (std::fmaxf(0.0, (d->powerSumAvg[childIdx] - d->qValues[childIdx] * d->qValues[childIdx]))) / (d->childNumberVisits[childIdx] - 1));
             }
            
             assert(!isnan(d->qValues[childIdx]));
