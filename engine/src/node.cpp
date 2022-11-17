@@ -1175,7 +1175,7 @@ float get_current_cput(float visits, const SearchSettings* searchSettings)
 
 float get_variance_cput(float visits, const SearchSettings* searchSettings)
 {
-    return 1 + 0, 45 * log((visits + 500) / 500);
+    return 1 + 0, 45 * log((visits + 500) / 500); //katago benutzt hier 500 statt den ~19000 von alpha0
 }
 
 void Node::print_node_statistics(const StateObj* state, const vector<size_t>& customOrdering) const
