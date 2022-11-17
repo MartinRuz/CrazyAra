@@ -215,7 +215,11 @@ public:
             d->powerSumAvg[childIdx] += (value * value - d->powerSumAvg[childIdx]) / d->childNumberVisits[childIdx];
             if (d->childNumberVisits[childIdx] > 1) {
                  double tmp = sqrt(std::max(0.0, ((d->qValues[childIdx] * d->qValues[childIdx] + 0.16) * 2 + d->powerSumAvg[childIdx] * (d->childNumberVisits[childIdx] + virtualLoss) / (2 + d->childNumberVisits[childIdx] + virtualLoss - 1))));
+                 info_string(d->qValues[childIdx]);
+                 info_string(d->powerSumAvg[childIdx]);
+                 info_string(d->childNumberVisits[childIdx]);
                  d->stdDev[childIdx] = 1 + 0.85 * (tmp / 0.4 - 1);
+                 info_string(d->stdDev[childIdx]);
             }
            
             assert(!isnan(d->qValues[childIdx]));
