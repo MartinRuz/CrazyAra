@@ -201,7 +201,7 @@ public:
             // (the initialization of the Q-value was by Q_INIT which we don't want to recover.)
             d->qValues[childIdx] = value;
             d->powerSumAvg[childIdx] = value * value;
-            d->stdDev[childIdx] = 0;
+            // info_string("cNV is vL");
         }
         else {
             // revert virtual loss and update the Q-value
@@ -214,10 +214,16 @@ public:
             
             d->powerSumAvg[childIdx] += (value * value - d->powerSumAvg[childIdx]) / d->childNumberVisits[childIdx];
             if (d->childNumberVisits[childIdx] > 1) {
+                d->stdDev[childIdx] = sqrt(d->childNumberVisits[childIdx] * (std::fmaxf(0.0, (d->powerSumAvg[childIdx] - d->qValues[childIdx] * d->qValues[childIdx]))) / (d->childNumberVisits[childIdx] - 1));
+            }
+
+            /*
+            d->powerSumAvg[childIdx] += (value * value - d->powerSumAvg[childIdx]) / d->childNumberVisits[childIdx];
+            if (d->childNumberVisits[childIdx] > 1) {
                  double utilitySq = d->qValues[childIdx] * d->qValues[childIdx] / ((d->childNumberVisits[childIdx] + virtualLoss) * (d->childNumberVisits[childIdx] + virtualLoss));
                  double tmp = sqrt(std::max(0.0, ((utilitySq + 0.16) * 2 + d->powerSumAvg[childIdx] * (d->childNumberVisits[childIdx] + virtualLoss) / (2 + d->childNumberVisits[childIdx] + virtualLoss - 1)) - utilitySq));
                  d->stdDev[childIdx] = 1 + 0.85 * (tmp / 0.4 - 1);
-            }
+            }*/
            
             assert(!isnan(d->qValues[childIdx]));
             assert(!isnan(d->stdDev[childIdx]));
@@ -439,11 +445,11 @@ public:
     float get_q_value(ChildIdx childIdx) const;
 
     /**
-     * @brief get_std_value Returns the standard deviation for the given child index
+     * @brief get_stdev_value Returns the standard deviation for the given child index
      * @param childIdx Child index
      * @return standard deviation
      */
-    float get_std_value(ChildIdx childIdx) const;
+    float get_stdev_value(ChildIdx childIdx) const;
 
     /**
      * @brief get_power_sum_avg Returns the power sum average for the given child index
@@ -470,6 +476,18 @@ public:
      * @return Index of child with maximum Q-value
      */
     ChildIdx get_best_q_idx() const;
+
+    /**
+  * @brief get_best_q Return the highest standard deviatioon
+  * @return maximum standard deviation, 0 if no stdev was computed yet
+  */
+    float get_best_stdev() const;
+
+    /**
+  * @brief get_worst_q_idx Return the lowest standard deviation of a node that was visited at least twice (i.e. has an actual computed variance) 
+  * @return 0 if no node has computed a stdev yet, the minimum standard deviation else
+  */
+    float get_worst_stdev() const;
 
     /**
      * @brief get_q_idx_over_thresh Returns all child node which coresponding Q-values are greater than qThresh

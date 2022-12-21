@@ -479,7 +479,7 @@ float Node::get_q_value(ChildIdx childIdx) const
     return d->qValues[childIdx];
 }
 
-float Node::get_std_value(ChildIdx childIdx) const
+float Node::get_stdev_value(ChildIdx childIdx) const
 {
     return d->stdDev[childIdx];
 }
@@ -502,6 +502,24 @@ void Node::set_q_value(ChildIdx childIdx, float value)
 ChildIdx Node::get_best_q_idx() const
 {
     return argmax(d->qValues);
+}
+
+float Node::get_best_stdev() const
+{
+    return std::fmaxf(0.0,d->stdDev[argmax(d->stdDev)]);
+}
+
+float Node::get_worst_stdev() const
+{
+    float min = 2.0;
+    for (ChildIdx idx = 0; idx < d->stdDev.size(); idx++)
+    {
+        if (d->stdDev[idx] != -1)
+        {
+            min = std::fminf(min, d->stdDev[idx]);
+        }
+    }
+    return min == 2.0 ? 0 : min;
 }
 
 vector<ChildIdx> Node::get_q_idx_over_thresh(float qThresh)
@@ -982,9 +1000,18 @@ DynamicVector<float> Node::get_current_u_values(const SearchSettings* searchSett
 #ifdef SEARCH_UCT
     return searchSettings->cpuctInit * (sqrt(log(d->visitSum)) / (d->childNumberVisits + FLT_EPSILON));
 #elif SEARCH_VARIANCE
-    //offset 0.001 serves to make the term non-zero when not having performed any visits.
-    //the max(0.01,cput-offset) serves the same purpose, when the node has not been visited yet, so variance is 0)
-    return get_variance_cput(d->visitSum, searchSettings) * blaze::subvector(d->stdDev, 0, d->noVisitIdx) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum + 0.01) / (d->childNumberVisits + 1.0));
+    float maxStdev = get_best_stdev(); //TODO: is this actually more efficient than declaring it as a variable and updating it each visit?
+    float minStdev = get_worst_stdev();
+    //float default_value = (maxStdev + minStdev) / 2;
+    float default_value = (maxStdev - minStdev) / 2 + 0.001;
+    DynamicVector<float> all_stdev = d->stdDev;
+    for (int i = 0; i < all_stdev.size(); i++) {
+        if (all_stdev[i] == -1.0) {
+            all_stdev[i] = default_value;
+        }
+    }
+    //info_string(all_stdev);
+    return get_variance_cput(d->visitSum, searchSettings) * blaze::subvector(all_stdev, 0, d->noVisitIdx) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum) / (d->childNumberVisits + 1.0));
 #else
     return get_current_cput(d->visitSum, searchSettings) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum) / (d->childNumberVisits + 1.0));
 #endif
@@ -1175,7 +1202,7 @@ float get_current_cput(float visits, const SearchSettings* searchSettings)
 
 float get_variance_cput(float visits, const SearchSettings* searchSettings)
 {
-    return 1 + 0, 45 * log((visits + 500) / 500); //katago benutzt hier 500 statt den ~19000 von alpha0
+    return 1 + 0.45 * log((visits + 500) / 500); //katago benutzt hier 500 statt den ~19000 von alpha0
 }
 
 void Node::print_node_statistics(const StateObj* state, const vector<size_t>& customOrdering) const
@@ -1193,7 +1220,7 @@ void Node::print_node_statistics(const StateObj* state, const vector<size_t>& cu
         if (childIdx < d->noVisitIdx) {
             n = d->childNumberVisits[childIdx];
             q = d->qValues[childIdx];
-            std = d->stdDev[childIdx];
+            std = get_stdev_value(childIdx);
         }
 
         const Action move = get_legal_actions()[childIdx];

@@ -52,7 +52,7 @@ enum NodeType : uint8_t {
 };
 
 /**
- * @brief is_loss_node_type Returns true if given node type belongs to a loosing node type
+ * @brief is_loss_node_type Returns true if given node type belongs to a losing node type
  * @param nodeType
  * @return bool
  */
