@@ -209,7 +209,7 @@ public:
             d->qValues[childIdx] = (double(d->qValues[childIdx]) * d->childNumberVisits[childIdx] + virtualLoss + value) / d->childNumberVisits[childIdx];
             // update std measurement using formula from:
             // https://subluminal.wordpress.com/2008/07/31/running-standard-deviations/#more-15
-            // childNumberVisits[childIdx] is still rescaled by the virtualLoss, which we don't want for the sumPowerAvg
+            // TODO: consider virtualLoss != 1 => childNumberVisits[childIdx] is still rescaled by the virtualLoss, which we don't want for the sumPowerAvg
             // so we need (d->childNumberVisits[childIdx] - size_t(virtualLoss) + 1)
             
             d->powerSumAvg[childIdx] += (value * value - d->powerSumAvg[childIdx]) / d->childNumberVisits[childIdx];
@@ -228,12 +228,22 @@ public:
             assert(!isnan(d->qValues[childIdx]));
             assert(!isnan(d->stdDev[childIdx]));
         }
-    
+
+        if (d->childNumberVisits[childIdx] == 1) {
+            d->stdev_one[childIdx] = d->stdDev[childIdx];
+        }
+        if (d->childNumberVisits[childIdx] == 2) {
+            d->stdev_two[childIdx] = d->stdDev[childIdx];
+        }
+
         if (virtualLoss != 1) {
             d->childNumberVisits[childIdx] -= size_t(virtualLoss) - 1;
             d->visitSum -= size_t(virtualLoss) - 1;
         }
-        
+        if (childIdx == 0) {
+            store_variance_in_file(d->stdDev[0], value, d->childNumberVisits[0], d->visitSum);
+        }
+
         if (freeBackup) {
             ++d->freeVisits;
         }
@@ -504,6 +514,10 @@ public:
      *  If an empty vector is given, it will use the current ordering of the child nodes (by default according to the prior policy).
      */
     void print_node_statistics(const StateObj* pos, const vector<size_t>& customOrdering) const;
+
+    void print_debug_file(const StateObj* state, const vector<size_t>& customOrdering, const SearchSettings* searchSettings, DynamicVector<float> u_term) ;
+
+    void store_variance_in_file(float stdDev, float value, int numVisits, int totalvisits);
 
     /**
      * @brief get_node_count Returns the number of nodes in the subgraph of this nodes without counting terminal simulations

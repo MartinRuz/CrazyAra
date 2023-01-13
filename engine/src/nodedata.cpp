@@ -32,9 +32,13 @@ void NodeData::add_empty_node()
     append(childNumberVisits, 0U);
     append(qValues, Q_INIT);
     append(powerSumAvg, 0.0f);
-    append(stdDev, -1.0f);
+    append(stdDev, 1.0f);
     append(virtualLossCounter, uint8_t(0));
     append(nodeTypes, UNSOLVED);
+    append(stdev_one, -2.0f);
+    append(stdev_two, -2.0f);
+    append(min_term, 2000.0f);
+    append(max_term, -2000.0f);
     childNodes.emplace_back(nullptr);
 }
 

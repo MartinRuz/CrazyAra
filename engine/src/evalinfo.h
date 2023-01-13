@@ -38,6 +38,9 @@
 using blaze::HybridVector;
 using blaze::DynamicVector;
 
+/**
+* @brief Struct that stores the search results of the evaluation of the current position.
+**/
 struct EvalInfo
 {
     chrono::steady_clock::time_point start;

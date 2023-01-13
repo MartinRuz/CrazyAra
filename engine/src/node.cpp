@@ -29,7 +29,10 @@
 #include "constants.h"
 #include "../util/communication.h"
 #include "evalinfo.h"
+#include <iostream>
+#include <fstream>
 
+//std::ofstream outfile("debug.txt");
 
 bool Node::is_sorted() const
 {
@@ -721,6 +724,7 @@ Node* Node::add_new_node_to_tree(MapWithMutex* mapWithMutex, StateObj* newState,
         mapWithMutex->mtx.unlock();
     }
     transposition = false;
+
     return d->childNodes[childIdx].get();
 }
 
@@ -1000,18 +1004,27 @@ DynamicVector<float> Node::get_current_u_values(const SearchSettings* searchSett
 #ifdef SEARCH_UCT
     return searchSettings->cpuctInit * (sqrt(log(d->visitSum)) / (d->childNumberVisits + FLT_EPSILON));
 #elif SEARCH_VARIANCE
-    float maxStdev = get_best_stdev(); //TODO: is this actually more efficient than declaring it as a variable and updating it each visit?
-    float minStdev = get_worst_stdev();
+    //float maxStdev = get_best_stdev(); //TODO: is this actually more efficient than declaring it as a variable and updating it each visit?
+    //float minStdev = get_worst_stdev();
     //float default_value = (maxStdev + minStdev) / 2;
-    float default_value = (maxStdev - minStdev) / 2 + 0.001;
+    //float default_value = (maxStdev - minStdev) / 2 + 0.001;
     DynamicVector<float> all_stdev = d->stdDev;
-    for (int i = 0; i < all_stdev.size(); i++) {
+    /*for (int i = 0; i < all_stdev.size(); i++) {
         if (all_stdev[i] == -1.0) {
             all_stdev[i] = default_value;
         }
-    }
+    }*/
     //info_string(all_stdev);
-    return get_variance_cput(d->visitSum, searchSettings) * blaze::subvector(all_stdev, 0, d->noVisitIdx) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum) / (d->childNumberVisits + 1.0));
+    DynamicVector<float> term = get_variance_cput(d->visitSum, searchSettings) * blaze::subvector(all_stdev, 0, d->noVisitIdx) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum) / (d->childNumberVisits + 1.0));
+    for (int i = 0; i < term.size(); i++) {
+        if (term[i] > d->max_term[i]) {
+            d->max_term[i] = term[i];
+        }
+        if (term[i] < d->min_term[i] && term[i] > 0.000001) {
+            d->min_term[i] = term[i];
+        }
+    }
+    return term;
 #else
     return get_current_cput(d->visitSum, searchSettings) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum) / (d->childNumberVisits + 1.0));
 #endif
@@ -1203,6 +1216,44 @@ float get_current_cput(float visits, const SearchSettings* searchSettings)
 float get_variance_cput(float visits, const SearchSettings* searchSettings)
 {
     return 1 + 0.45 * log((visits + 500) / 500); //katago benutzt hier 500 statt den ~19000 von alpha0
+}
+
+void Node::store_variance_in_file(float stddev, float value, int numVisits, int totalvisits) {
+    ofstream outfile;
+    outfile.open("variance.txt", std::ios_base::app);
+    outfile << setw(15) << stddev << " |  " << setw(15) << value << " | " << setw(15) << numVisits << " | " << setw(15) << totalvisits << endl;
+    outfile.close();
+}
+
+void Node::print_debug_file(const StateObj* state, const vector<size_t>& customOrdering, const SearchSettings* searchSettings, DynamicVector<float> u_term)
+{
+    const string header = "  #  | Move  |    first variance    |  second variance |  final variance  |  visits  |   min selection    |    max selection   |   final term   |   policy   |    ";
+    const string filler = "-----+-------+----------------------+------------------+------------------+----------+--------------------+--------------------+----------------+------------+";
+    ofstream outfile;
+    outfile.open("debug.txt", std::ios_base::app);
+    outfile << header << endl
+            << std::showpoint << std::fixed << std::setprecision(7)
+            << filler << endl;
+    for (int idx = 0; idx < get_number_child_nodes(); idx++) {
+
+        const size_t childIdx = customOrdering.size() == get_number_child_nodes() ? customOrdering[idx] : idx;
+        const Action move = get_legal_actions()[childIdx];
+        outfile << " " << setfill('0') << setw(3) << childIdx << " | " << setfill(' ');
+        if (state == nullptr) {
+            outfile << setw(5) << StateConstants::action_to_uci(move, false) << " | ";
+        }
+        else {
+            outfile << setw(5) << state->action_to_san(move, get_legal_actions(), false, false) << " | ";
+        }
+        outfile << setw(20) << d->stdev_one[childIdx] << " | ";
+        outfile << setw(16) << d->stdev_two[childIdx] << " | ";
+        outfile << setw(16) << d->stdDev[childIdx] << " | ";
+        outfile << setw(8) << d->childNumberVisits[childIdx] << " | ";
+        outfile << setw(18) << d->min_term[childIdx] << " | ";
+        outfile << setw(18) << d->max_term[childIdx] << " | ";
+        outfile << setw(14) << u_term[childIdx] << " | " << endl;
+    }
+    outfile.close();
 }
 
 void Node::print_node_statistics(const StateObj* state, const vector<size_t>& customOrdering) const

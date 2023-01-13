@@ -675,17 +675,18 @@ TEST_CASE("Q_std_value_calculation") {
     node.prepare_node_for_visits();
     node.apply_virtual_loss_to_child(0, 1);
     node.revert_virtual_loss_and_update<false>(childIdx, value, virtualLoss, solveForTerminal);
-    REQUIRE(node.get_std_value(0) == 0);
-    REQUIRE(node.get_power_sum_avg(0) == 16);
+    //performed one visit
+    REQUIRE(node.get_stdev_value(0) == 1); //init value of variance
+    REQUIRE(node.get_power_sum_avg(0) == 16); //square of value
     node.apply_virtual_loss_to_child(0, 1);
     node.revert_virtual_loss_and_update<false>(childIdx, value, virtualLoss, solveForTerminal);
-
-    REQUIRE(node.get_std_value(0) == 0);
-    REQUIRE(node.get_power_sum_avg(0) == 16);
+    //performed 2 visits
+    REQUIRE(node.get_stdev_value(0) == 0); //variance is 0, since we gave the same value twice
+    REQUIRE(node.get_power_sum_avg(0) == 16); //average of squares of values
     node.apply_virtual_loss_to_child(0, 1);
     node.revert_virtual_loss_and_update<false>(childIdx, 1, virtualLoss, solveForTerminal);
-    REQUIRE(abs(node.get_std_value(0) - sqrt(3)) <= 0.001);
-    REQUIRE(node.get_power_sum_avg(0) == 11);
+    REQUIRE(abs(node.get_stdev_value(0) - sqrt(3)) <= 0.001); //variance after observing value,value,1
+    REQUIRE(node.get_power_sum_avg(0) == 11);//average of squares of values
     const vector<size_t> customOrdering;
     node.print_node_statistics(&state, customOrdering);
 }
