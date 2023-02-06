@@ -108,6 +108,9 @@ public:
     void lock();
 
     void unlock();
+
+    //void print_debug_file(const StateObj* state, const vector<size_t>& customOrdering, const SearchSettings* searchSettings);
+
 };
 }
 

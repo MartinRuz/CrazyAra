@@ -315,6 +315,7 @@ void MCTSAgent::evaluate_board_state()
         update_stats();
     }
     update_eval_info(*evalInfo, rootNode.get(), tbHits, maxDepth, searchSettings);
+    info_string("call am ende von mctsagent");
     lastValueEval = evalInfo->bestMoveQ[0];
     lastSideToMove = state->side_to_move();
     update_nps_measurement(evalInfo->calculate_nps());

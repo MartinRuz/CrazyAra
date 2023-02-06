@@ -98,6 +98,14 @@ struct NodeData
     DynamicVector<float> stdev_two;
     DynamicVector<float> min_term;
     DynamicVector<float> max_term;
+    DynamicVector<float> vars;
+    DynamicVector<float> welfords;
+    DynamicVector<float> welfords_samples;
+    DynamicVector<float> values;
+    DynamicVector<float> welford_m2;
+    DynamicVector<float> welford_samplevar;
+    DynamicVector<float> welford_var;
+    DynamicVector<int> idx;
 
     uint32_t freeVisits;
     uint32_t visitSum;

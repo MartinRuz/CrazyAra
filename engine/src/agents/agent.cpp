@@ -30,6 +30,8 @@
 #include "../util/communication.h"
 #include "../util/blazeutil.h"
 #include "stateobj.h"
+#include <iostream>
+#include <fstream>
 
 using namespace std;
 using namespace crazyara;
@@ -97,6 +99,37 @@ void Agent::perform_action()
     isRunning = false;
     runnerMutex.unlock();
 }
+/*
+void Agent::print_debug_file(const StateObj* state, const vector<size_t>& customOrdering, const SearchSettings* searchSettings)
+{
+    const string header = "  #  | Move  |    first variance    |  second variance |  final variance  |  visits  |   min selection    |    max selection   |   final term   |   policy   |    ";
+    const string filler = "-----+-------+----------------------+------------------+------------------+----------+--------------------+--------------------+----------------+------------+";
+    ofstream outfile;
+    outfile.open("debug.txt", std::ios_base::app);
+    outfile << header << endl
+        << std::showpoint << std::fixed << std::setprecision(7)
+        << filler << endl;
+    for (int idx = 0; idx < evalInfo->legalMoves.size(); idx++) {
+        const size_t childIdx = customOrdering.size() == evalInfo->legalMoves.size() ? customOrdering[idx] : idx;
+        const Action move = evalInfo->legalMoves[childIdx];
+        outfile << " " << setfill('0') << setw(3) << childIdx << " | " << setfill(' ');
+        if (state == nullptr) {
+            outfile << setw(5) << StateConstants::action_to_uci(move, false) << " | ";
+        }
+        else {
+            outfile << setw(5) << state->action_to_san(move, evalInfo->legalMoves, false, false) << " | ";
+        }
+        //DynamicVector<float> u_values = get_current_u_values(searchSettings);
+        outfile << setw(20) << d->stdev_one[childIdx] << " | ";
+        outfile << setw(16) << d->stdev_two[childIdx] << " | ";
+        outfile << setw(16) << d->stdDev[childIdx] << " | ";
+        outfile << setw(8) << d->childNumberVisits[childIdx] << " | ";
+        outfile << setw(18) << d->min_term[childIdx] << " | ";
+        outfile << setw(18) << d->max_term[childIdx] << " | ";
+        //outfile << setw(14) << u_values[childIdx] << " | " << endl;
+    }
+    outfile.close();
+}*/
 
 void run_agent_thread(Agent* agent)
 {

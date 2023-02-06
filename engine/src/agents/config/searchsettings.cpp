@@ -48,7 +48,8 @@ SearchSettings::SearchSettings():
         useTablebase(false),
         epsilonGreedyCounter(20),
         reuseTree(true),
-        mctsSolver(false)
+        mctsSolver(false),
+        useVariance(false)
 {
 
 }

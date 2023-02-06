@@ -1002,8 +1002,9 @@ void Node::enhance_moves(const SearchSettings* searchSettings)
 DynamicVector<float> Node::get_current_u_values(const SearchSettings* searchSettings)
 {
 #ifdef SEARCH_UCT
+    info_string("bad test");
     return searchSettings->cpuctInit * (sqrt(log(d->visitSum)) / (d->childNumberVisits + FLT_EPSILON));
-#elif SEARCH_VARIANCE
+#else 
     //float maxStdev = get_best_stdev(); //TODO: is this actually more efficient than declaring it as a variable and updating it each visit?
     //float minStdev = get_worst_stdev();
     //float default_value = (maxStdev + minStdev) / 2;
@@ -1015,18 +1016,26 @@ DynamicVector<float> Node::get_current_u_values(const SearchSettings* searchSett
         }
     }*/
     //info_string(all_stdev);
-    DynamicVector<float> term = get_variance_cput(d->visitSum, searchSettings) * blaze::subvector(all_stdev, 0, d->noVisitIdx) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum) / (d->childNumberVisits + 1.0));
-    for (int i = 0; i < term.size(); i++) {
+    DynamicVector<float> exploreScaling = get_current_cput(d->visitSum, searchSettings) * blaze::subvector(all_stdev, 0, d->noVisitIdx) * sqrt(d->visitSum + 0.01);
+    DynamicVector<float> term = (exploreScaling * blaze::subvector(policyProbSmall, 0, d->noVisitIdx)) / (d->childNumberVisits + 1.0);
+    //DynamicVector<float> term = get_variance_cput(d->visitSum, searchSettings) * blaze::subvector(all_stdev, 0, d->noVisitIdx) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum) / (d->childNumberVisits + 1.0));
+    /*for (int i = 0; i < term.size(); i++) {
         if (term[i] > d->max_term[i]) {
             d->max_term[i] = term[i];
         }
         if (term[i] < d->min_term[i] && term[i] > 0.000001) {
             d->min_term[i] = term[i];
         }
+    }*/
+    //DynamicVector<float> add = blaze::subvector(all_stdev, 0, d->noVisitIdx) + (get_current_cput(d->visitSum, searchSettings) * sqrt(d->visitSum + 0.01) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx)) / (d->childNumberVisits + 1.0);
+    DynamicVector<float> alt = get_current_cput(d->visitSum, searchSettings) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum) / (d->childNumberVisits + 1.0));
+
+    if (searchSettings->useVariance) {
+        return term;
+    } 
+    else{
+        return alt;
     }
-    return term;
-#else
-    return get_current_cput(d->visitSum, searchSettings) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum) / (d->childNumberVisits + 1.0));
 #endif
 }
 
@@ -1210,6 +1219,7 @@ float get_visits(Node* node)
 
 float get_current_cput(float visits, const SearchSettings* searchSettings)
 {
+    //cout << "test\n";
     return log((visits + searchSettings->cpuctBase + 1) / searchSettings->cpuctBase) + searchSettings->cpuctInit;
 }
 
@@ -1219,8 +1229,13 @@ float get_variance_cput(float visits, const SearchSettings* searchSettings)
 }
 
 void Node::store_variance_in_file(float stddev, float value, int numVisits, int totalvisits) {
+    //const string header = "    stddev            |    value             |    numVisits         |  totalvisits     |";
+    //const string filler = "----------------------+----------------------+----------------------+------------------+";
     ofstream outfile;
     outfile.open("variance.txt", std::ios_base::app);
+    /*outfile << header << endl
+        << std::showpoint << std::fixed << std::setprecision(7)
+        << filler << endl;*/
     outfile << setw(15) << stddev << " |  " << setw(15) << value << " | " << setw(15) << numVisits << " | " << setw(15) << totalvisits << endl;
     outfile.close();
 }

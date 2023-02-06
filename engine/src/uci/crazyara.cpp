@@ -190,6 +190,8 @@ void CrazyAra::go(StateObj* state, istringstream &is,  EvalInfo& evalInfo)
         mctsAgent->set_search_settings(state, &searchLimits, &evalInfo);
         mctsAgent->lock(); // lock() mctsAgent to avoid calling stop() immediatly
         mainSearchThread = thread(run_agent_thread, mctsAgent.get());
+        //const vector<size_t> customOrdering = sort_permutation(evalInfo->policyProbSmall, std::greater<float>());
+        //rootNode->print_debug_file(state, customOrdering, searchSettings);
     }
 }
 
@@ -691,6 +693,7 @@ void CrazyAra::init_search_settings()
     searchSettings.virtualLoss = Options["Centi_Virtual_Loss"] / 100.0f;
     searchSettings.randomMoveFactor = Options["Centi_Random_Move_Factor"]  / 100.0f;
     searchSettings.allowEarlyStopping = Options["Allow_Early_Stopping"];
+    searchSettings.useVariance = Options["Use_Variance"] == "true";
     useRawNetwork = Options["Use_Raw_Network"];
 #ifdef SUPPORT960
     is960 = Options["UCI_Chess960"];
@@ -704,6 +707,7 @@ void CrazyAra::init_search_settings()
     }
     searchSettings.reuseTree = Options["Reuse_Tree"];
     searchSettings.mctsSolver = Options["MCTS_Solver"];
+    searchSettings.useVariance = Options["Use_Variance"];
 }
 
 void CrazyAra::init_play_settings()
