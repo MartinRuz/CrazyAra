@@ -639,6 +639,8 @@ void Node::revert_virtual_loss(ChildIdx childIdx, float virtualLoss)
 {
     lock();
     d->qValues[childIdx] = (double(d->qValues[childIdx]) * d->childNumberVisits[childIdx] + virtualLoss) / (d->childNumberVisits[childIdx] - virtualLoss);
+
+    //TODO fucking do sth here!?
     d->childNumberVisits[childIdx] -= virtualLoss;
     d->visitSum -= virtualLoss;
     // decrement virtual loss counter
@@ -1010,6 +1012,9 @@ DynamicVector<float> Node::get_current_u_values(const SearchSettings* searchSett
     //float default_value = (maxStdev + minStdev) / 2;
     //float default_value = (maxStdev - minStdev) / 2 + 0.001;
     DynamicVector<float> all_stdev = d->stdDev;
+    DynamicVector<float> all_welford = d->welford_var;
+    DynamicVector<float> all_welford_sample = d->welford_samplevar;
+    //all_stdev = 0.5 * all_stdev;
     /*for (int i = 0; i < all_stdev.size(); i++) {
         if (all_stdev[i] == -1.0) {
             all_stdev[i] = default_value;
@@ -1027,11 +1032,10 @@ DynamicVector<float> Node::get_current_u_values(const SearchSettings* searchSett
             d->min_term[i] = term[i];
         }
     }*/
-    //DynamicVector<float> add = blaze::subvector(all_stdev, 0, d->noVisitIdx) + (get_current_cput(d->visitSum, searchSettings) * sqrt(d->visitSum + 0.01) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx)) / (d->childNumberVisits + 1.0);
+    DynamicVector<float> add = blaze::subvector(all_welford_sample, 0, d->noVisitIdx) + (get_current_cput(d->visitSum, searchSettings) * sqrt(d->visitSum + 0.01) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx)) / (d->childNumberVisits + 1.0);
     DynamicVector<float> alt = get_current_cput(d->visitSum, searchSettings) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum) / (d->childNumberVisits + 1.0));
-
     if (searchSettings->useVariance) {
-        return term;
+        return add;
     } 
     else{
         return alt;

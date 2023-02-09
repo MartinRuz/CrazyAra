@@ -195,21 +195,26 @@ public:
 
         valueSum += value;
         ++realVisitsSum;
+        const double realVisitsUpdated = d->childNumberVisits[childIdx]; // get_real_visits(childIdx) + 1;// 
         
         if (d->childNumberVisits[childIdx] == virtualLoss) {
             // set new Q-value based on return
             // (the initialization of the Q-value was by Q_INIT which we don't want to recover.)
             d->qValues[childIdx] = value;
+            d->mean[childIdx] = value;
             d->powerSumAvg[childIdx] = value * value;
-            // info_string("cNV is vL");
+            if (childIdx == 0 && numberParentNodes == 0 && d != nullptr) {
+                //cout << "if war true " << d->idx[0] << value << endl;
+            }
         }
         else {
             // revert virtual loss and update the Q-value
             assert(d->childNumberVisits[childIdx] != 0);
-            const double realVisitsUpdated = d->childNumberVisits[childIdx]; // get_real_visits(childIdx) + 1;
-            double delta = value - d->qValues[childIdx];
-            d->qValues[childIdx] = (double(d->qValues[childIdx]) * d->childNumberVisits[childIdx] + virtualLoss + value) / d->childNumberVisits[childIdx];
-            double delta2 = value - d->qValues[childIdx];
+            //const double realVisitsUpdated = get_real_visits(childIdx) + 1;// d->childNumberVisits[childIdx]; // 
+            double delta = value - d->mean[childIdx];
+            d->qValues[childIdx] = (double(d->qValues[childIdx]) * realVisitsUpdated + virtualLoss + value) / realVisitsUpdated; // d->childNumberVisits[childIdx];
+            d->mean[childIdx] += (double(value - d->mean[childIdx]) / realVisitsUpdated);
+            double delta2 = value - d->mean[childIdx];
             d->welford_m2[childIdx] += delta * delta2;
             // update std measurement using formula from:
             // https://subluminal.wordpress.com/2008/07/31/running-standard-deviations/#more-15
@@ -218,19 +223,25 @@ public:
             
             d->powerSumAvg[childIdx] += (value * value - d->powerSumAvg[childIdx]) / realVisitsUpdated;
             if (d->childNumberVisits[childIdx] > 1) {
-                d->welford_samplevar[childIdx] = d->welford_m2[childIdx] / (realVisitsUpdated - 1);
+                d->welford_samplevar[childIdx] = sqrt(d->welford_m2[childIdx] / (realVisitsUpdated - 1));
                 d->welford_var[childIdx] = d->welford_m2[childIdx] / realVisitsUpdated;
-                d->stdDev[childIdx] = d->childNumberVisits[childIdx] * (std::fmaxf(0.0, (d->powerSumAvg[childIdx] - d->qValues[childIdx] * d->qValues[childIdx]))) / realVisitsUpdated;
-                if (childIdx == 0 && numberParentNodes == 0 && d!= nullptr) {
-                    cout << d->idx[0];
-                    d->vars[d->idx[0]] = d->stdDev[0];
-                    cout << " " << d->vars[d->idx[0]] << endl;
-                    d->welfords[d->idx[0]] = d->welford_var[0];
-                    d->welfords_samples[d->idx[0]] = d->welford_samplevar[0];
-                    d->values[d->idx[0]] = value;
-                    d->idx[0] += 1;
-                }
+                d->stdDev[childIdx] = d->childNumberVisits[childIdx] * (std::fmaxf(0.0, (d->powerSumAvg[childIdx] - d->mean[childIdx] * d->mean[childIdx]))) / realVisitsUpdated;
+                //d->stdDev[childIdx] = sqrt((std::log(realVisitsSum)/realVisitsUpdated) * std::fminf(0.25, d->powerSumAvg[childIdx] - d->qValues[childIdx] * d->qValues[childIdx] + sqrt(2 * std::log(realVisitsSum) / realVisitsUpdated)));
+                
             }
+            /*if (childIdx == 0 && numberParentNodes == 0 && d != nullptr) {
+                //cout << d->idx[0];
+                d->vars[d->idx[0]] = d->childNumberVisits[childIdx] * (std::fmaxf(0.0, (d->powerSumAvg[childIdx] - d->qValues[childIdx] * d->qValues[childIdx]))) / realVisitsUpdated;
+                //cout << "value: " << value << " qvalue: " << d->qValues[0] << endl;
+                d->welfords[d->idx[0]] = d->welford_var[0];
+                d->welfords_samples[d->idx[0]] = d->welford_samplevar[0];
+                d->values[d->idx[0]] = value;
+                d->all_q[d->idx[0]] = d->qValues[0];
+                d->means[d->idx[0]] = d->mean[0];
+                d->psas[d->idx[0]] = d->powerSumAvg[childIdx];
+                d->vars_ownmean[d->idx[0]] = d->stdDev[0];
+                d->idx[0] += 1;
+            }*/
 
             /*
             d->powerSumAvg[childIdx] += (value * value - d->powerSumAvg[childIdx]) / d->childNumberVisits[childIdx];
@@ -244,29 +255,45 @@ public:
             assert(!isnan(d->stdDev[childIdx]));
         }
 
-        if (numberParentNodes == 0 && childIdx == 0 && d!=nullptr) {
-            cout << "if war korrekt";
+        /*if (numberParentNodes == 0 && childIdx == 0 && d != nullptr) {
             ofstream outfile;
             outfile.open("welford.txt", std::ios_base::app);
-            outfile << "new iteration" << endl;
-            for (int idx = 0; idx < d->idx[0]-1; idx++) {
+            outfile << "new iteration mit idx = " << d->idx[0] << " wobei childNumberVisits " << d->childNumberVisits[childIdx] << " und realvisits " << get_real_visits() << endl;
+            for (int idx = 0; idx < d->idx[0]; idx++) {
                 outfile << setw(10) << d->welfords[idx] << ", ";
             }
             outfile << endl;
-            for (int idx = 0; idx < d->idx[0] - 1; idx++) {
+            for (int idx = 0; idx < d->idx[0]; idx++) {
                 outfile << setw(10) << d->welfords_samples[idx] << ", ";
             }
             outfile << endl;
-            for (int idx = 0; idx < d->idx[0]-1; idx++) {
+            for (int idx = 0; idx < d->idx[0]; idx++) {
                 outfile << setw(10) << d->vars[idx] << ", ";
             }
             outfile << endl;
-            for (int idx = 0; idx < d->idx[0]-1; idx++) {
+            for (int idx = 0; idx < d->idx[0]; idx++) {
+                outfile << setw(10) << d->vars_ownmean[idx] << ", ";
+            }
+            outfile << endl;
+            for (int idx = 0; idx < d->idx[0]; idx++) {
                 outfile << setw(10) << d->values[idx] << ", ";
             }
             outfile << endl;
+            for (int idx = 0; idx < d->idx[0]; idx++) {
+                outfile << setw(10) << d->all_q[idx] << ", ";
+            }
+            outfile << endl; 
+            for (int idx = 0; idx < d->idx[0]; idx++) {
+                outfile << setw(10) << d->means[idx] << ", ";
+            }
+            outfile << endl;
+            for (int idx = 0; idx < d->idx[0]; idx++) {
+                outfile << setw(10) << d->psas[idx] << ", ";
+            }
+            outfile << endl;
+            outfile << endl;
             outfile.close();
-        }
+        }*/
 
         if (d->childNumberVisits[childIdx] == 1) {
             d->stdev_one[childIdx] = d->stdDev[childIdx];
@@ -279,9 +306,9 @@ public:
             d->childNumberVisits[childIdx] -= size_t(virtualLoss) - 1;
             d->visitSum -= size_t(virtualLoss) - 1;
         }
-        if (numberParentNodes == 0 && childIdx == 0 && d != nullptr) {
+        /*if (numberParentNodes == 0 && childIdx == 0 && d != nullptr) {
             store_variance_in_file(d->stdDev[0], value, d->childNumberVisits[0], d->visitSum);
-        }
+        }*/
 
         if (freeBackup) {
             ++d->freeVisits;
