@@ -469,10 +469,14 @@ void Node::apply_virtual_loss_to_child(ChildIdx childIdx, uint_fast32_t virtualL
     // make it look like if one has lost X games from this node forward where X is the virtual loss value
     // temporarily reduce the attraction of this node by applying a virtual loss /
     // the effect of virtual loss will be undone if the playout is over
+    //TESTcout << "apply virtual loss bei childidx " << childIdx << " " << is_root_node() << endl;
     d->qValues[childIdx] = (double(d->qValues[childIdx]) * d->childNumberVisits[childIdx] - virtualLoss) / double(d->childNumberVisits[childIdx] + virtualLoss);
     // virtual increase the number of visits
     d->childNumberVisits[childIdx] += virtualLoss;
     d->visitSum += virtualLoss;
+    //adjust power sum average and stddev
+    d->powerSumAvg[childIdx] += (virtualLoss * virtualLoss - d->powerSumAvg[childIdx]) / d->childNumberVisits[childIdx];
+    d->stdDev[childIdx] = (d->powerSumAvg[childIdx] * d->childNumberVisits[childIdx] - d->childNumberVisits[childIdx] * d->qValues[childIdx] * d->qValues[childIdx]) / (d->childNumberVisits[childIdx] - 1);
     // increment virtual loss counter
     update_virtual_loss_counter<true>(childIdx, virtualLoss);
 }
@@ -543,6 +547,7 @@ void Node::reserve_full_memory()
     d->childNodes.reserve(numberChildNodes);
     d->virtualLossCounter.reserve(numberChildNodes);
     d->nodeTypes.reserve(numberChildNodes);
+    d->stdDev.reserve(numberChildNodes);
 }
 
 void Node::increment_no_visit_idx()
@@ -637,11 +642,13 @@ void backup_collision(float virtualLoss, const Trajectory& trajectory) {
 
 void Node::revert_virtual_loss(ChildIdx childIdx, float virtualLoss)
 {
+    //TESTcout << "revert virtual loss bei " << childIdx << " " << is_root_node() << endl;
     lock();
     d->qValues[childIdx] = (double(d->qValues[childIdx]) * d->childNumberVisits[childIdx] + virtualLoss) / (d->childNumberVisits[childIdx] - virtualLoss);
-
-    //TODO fucking do sth here!?
+    //revert powersumaverage
+    d->powerSumAvg[childIdx] = (d->powerSumAvg[childIdx] * d->childNumberVisits[childIdx] - virtualLoss * virtualLoss) / (d->childNumberVisits[childIdx] - virtualLoss);
     d->childNumberVisits[childIdx] -= virtualLoss;
+    d->stdDev[childIdx] = (d->powerSumAvg[childIdx] * d->childNumberVisits[childIdx] - d->childNumberVisits[childIdx] * d->qValues[childIdx] * d->qValues[childIdx])/(d->childNumberVisits[childIdx] - 1);
     d->visitSum -= virtualLoss;
     // decrement virtual loss counter
     update_virtual_loss_counter<false>(childIdx, virtualLoss);
@@ -1012,9 +1019,9 @@ DynamicVector<float> Node::get_current_u_values(const SearchSettings* searchSett
     //float default_value = (maxStdev + minStdev) / 2;
     //float default_value = (maxStdev - minStdev) / 2 + 0.001;
     DynamicVector<float> all_stdev = d->stdDev;
-    DynamicVector<float> all_welford = d->welford_var;
-    DynamicVector<float> all_welford_sample = d->welford_samplevar;
-    //all_stdev = 0.5 * all_stdev;
+    //TESTDynamicVector<float> all_welford = d->welford_var;
+    //TESTDynamicVector<float> all_welford_sample = d->welford_samplevar;
+    all_stdev = 0.5 * all_stdev;
     /*for (int i = 0; i < all_stdev.size(); i++) {
         if (all_stdev[i] == -1.0) {
             all_stdev[i] = default_value;
@@ -1032,7 +1039,7 @@ DynamicVector<float> Node::get_current_u_values(const SearchSettings* searchSett
             d->min_term[i] = term[i];
         }
     }*/
-    DynamicVector<float> add = blaze::subvector(all_welford_sample, 0, d->noVisitIdx) + (get_current_cput(d->visitSum, searchSettings) * sqrt(d->visitSum + 0.01) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx)) / (d->childNumberVisits + 1.0);
+    DynamicVector<float> add = blaze::subvector(all_stdev, 0, d->noVisitIdx) + (get_current_cput(d->visitSum, searchSettings) * sqrt(d->visitSum + 0.01) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx)) / (d->childNumberVisits + 1.0);
     DynamicVector<float> alt = get_current_cput(d->visitSum, searchSettings) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum) / (d->childNumberVisits + 1.0));
     if (searchSettings->useVariance) {
         return add;
@@ -1264,12 +1271,12 @@ void Node::print_debug_file(const StateObj* state, const vector<size_t>& customO
         else {
             outfile << setw(5) << state->action_to_san(move, get_legal_actions(), false, false) << " | ";
         }
-        outfile << setw(20) << d->stdev_one[childIdx] << " | ";
-        outfile << setw(16) << d->stdev_two[childIdx] << " | ";
+        //outfile << setw(20) << d->stdev_one[childIdx] << " | ";
+        //outfile << setw(16) << d->stdev_two[childIdx] << " | ";
         outfile << setw(16) << d->stdDev[childIdx] << " | ";
         outfile << setw(8) << d->childNumberVisits[childIdx] << " | ";
-        outfile << setw(18) << d->min_term[childIdx] << " | ";
-        outfile << setw(18) << d->max_term[childIdx] << " | ";
+        //outfile << setw(18) << d->min_term[childIdx] << " | ";
+        //outfile << setw(18) << d->max_term[childIdx] << " | ";
         outfile << setw(14) << u_term[childIdx] << " | " << endl;
     }
     outfile.close();

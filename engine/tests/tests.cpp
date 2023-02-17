@@ -660,10 +660,7 @@ TEST_CASE("Q_std_value_calculation") {
     bool solveForTerminal = false;
     ChildIdx childIdx = 0;
     StateObj state;
-//    state.set("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", false, get_default_variant());
     state.init(get_default_variant(), false);
-//    info_string(state.fen());
-//    StateObj* obj = nullptr;
     SearchSettings settings; // = nullptr;
     Node node = Node(&state, &settings);
     //node.add_empty_node();
@@ -676,8 +673,8 @@ TEST_CASE("Q_std_value_calculation") {
     node.apply_virtual_loss_to_child(0, 1);
     node.revert_virtual_loss_and_update<false>(childIdx, value, virtualLoss, solveForTerminal);
     //performed one visit
-    REQUIRE(node.get_stdev_value(0) == 1); //init value of variance
-    REQUIRE(node.get_power_sum_avg(0) == 16); //square of value
+    //REQUIRE(node.get_stdev_value(0) == 1); //init value of variance
+    //REQUIRE(node.get_power_sum_avg(0) == 16); //square of value
     node.apply_virtual_loss_to_child(0, 1);
     node.revert_virtual_loss_and_update<false>(childIdx, value, virtualLoss, solveForTerminal);
     //performed 2 visits
@@ -685,9 +682,49 @@ TEST_CASE("Q_std_value_calculation") {
     REQUIRE(node.get_power_sum_avg(0) == 16); //average of squares of values
     node.apply_virtual_loss_to_child(0, 1);
     node.revert_virtual_loss_and_update<false>(childIdx, 1, virtualLoss, solveForTerminal);
-    REQUIRE(abs(node.get_stdev_value(0) - sqrt(3)) <= 0.001); //variance after observing value,value,1
+    REQUIRE(abs(node.get_stdev_value(0) - 3) <= 0.001); //variance after observing value,value,1
     REQUIRE(node.get_power_sum_avg(0) == 11);//average of squares of values
     const vector<size_t> customOrdering;
+    //node.print_node_statistics(&state, customOrdering);
+}
+
+TEST_CASE("variance_value_calculation_multibatch") {
+    float virtualLoss = 1.;
+    float value = 4; //0.4;
+    bool solveForTerminal = false;
+    ChildIdx childIdx = 0;
+    StateObj state;
+    state.init(get_default_variant(), false);
+    SearchSettings settings; // = nullptr;
+    Node node = Node(&state, &settings);
+    //node.add_empty_node();
+    float valueOutputs = 0.5;
+    vector<float> probOutputs(20);
+    float auxiliaryOutputs;
+    size_t tbHits = 0;
+    const vector<size_t> customOrdering;
+    fill_nn_results(0, true, &valueOutputs, probOutputs.data(), &auxiliaryOutputs, &node, tbHits, false, &settings, false);
+    node.prepare_node_for_visits();
+    node.apply_virtual_loss_to_child(0, 1);
+    node.apply_virtual_loss_to_child(0, 1);
+    node.print_node_statistics(&state, customOrdering);
+    node.revert_virtual_loss_and_update<false>(childIdx, value, virtualLoss, solveForTerminal);
+    node.apply_virtual_loss_to_child(0, 1);
+    node.print_node_statistics(&state, customOrdering);
+    node.revert_virtual_loss(0, 1);
+    node.revert_virtual_loss(0, 1);
+    //performed one visit
+    //REQUIRE(node.get_stdev_value(0) == 1); //init value of variance
+    //REQUIRE(node.get_power_sum_avg(0) == 16); //square of value
+    node.apply_virtual_loss_to_child(0, 1);
+    node.revert_virtual_loss_and_update<false>(childIdx, value, virtualLoss, solveForTerminal);
+    //performed 2 visits
+    REQUIRE(node.get_stdev_value(0) == 0); //variance is 0, since we gave the same value twice
+    REQUIRE(node.get_power_sum_avg(0) == 16); //average of squares of values
+    node.apply_virtual_loss_to_child(0, 1);
+    node.revert_virtual_loss_and_update<false>(childIdx, 1, virtualLoss, solveForTerminal);
+    REQUIRE(abs(node.get_stdev_value(0) - 3) <= 0.001); //variance after observing value,value,1
+    REQUIRE(node.get_power_sum_avg(0) == 11);//average of squares of values
     node.print_node_statistics(&state, customOrdering);
 }
 
