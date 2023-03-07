@@ -179,6 +179,11 @@ void MCTSAgent::create_new_root_node(StateObj* state)
 #else
     state->get_state_planes(true, inputPlanes, net->get_version());
     net->predict(inputPlanes, valueOutputs, probOutputs, auxiliaryOutputs);
+    info_string(valueOutputs);
+    /*float randomNumber = ((float)rand() / RAND_MAX);
+    info_string(randomNumber);
+    info_string(auxiliaryOutputs + "auxiliary");
+    *auxiliaryOutputs += randomNumber;*/
     size_t tbHits = 0;
     fill_nn_results(0, net->is_policy_map(), valueOutputs, probOutputs, auxiliaryOutputs, rootNode.get(), tbHits,
                     rootState->mirror_policy(state->side_to_move()), searchSettings, rootNode->is_tablebase());
@@ -274,7 +279,7 @@ void MCTSAgent::handle_single_move()
         targetEval = -lastValueEval;
     }
 #endif
-    rootNode->set_value(targetEval);
+    rootNode->set_value(targetEval, 1.0);
     rootNode->set_q_value(0, targetEval);
 }
 

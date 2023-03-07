@@ -694,6 +694,7 @@ void CrazyAra::init_search_settings()
 #ifdef SUPPORT960
     is960 = Options["UCI_Chess960"];
 #endif
+    searchSettings.useUncertainty = Options["Use_Uncertainty"];
     searchSettings.useNPSTimemanager = Options["Use_NPS_Time_Manager"];
     if (string(Options["SyzygyPath"]).empty() || string(Options["SyzygyPath"]) == "<empty>") {
         searchSettings.useTablebase = false;

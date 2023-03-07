@@ -160,21 +160,22 @@ bool Node::solved_loss(const Node* childNode) const
     return false;
 }
 
+// these 3 methods get weighted with factor 1
 void Node::mark_as_loss()
 {
-    set_value(LOSS_VALUE);
+    set_value(LOSS_VALUE, 1.0);
     d->nodeType = LOSS;
 }
 
 void Node::mark_as_draw()
 {
-    set_value(DRAW_VALUE);
+    set_value(DRAW_VALUE, 1.0);
     d->nodeType = DRAW;
 }
 
 void Node::mark_as_win()
 {
-    set_value(WIN_VALUE);
+    set_value(WIN_VALUE, 1.0);
     d->nodeType = WIN;
 }
 
@@ -268,7 +269,7 @@ template <int targetValue>
 void Node::update_solved_terminal(const Node* childNode, ChildIdx childIdx)
 {
     define_end_ply_for_solved_terminal(childNode);
-    set_value(targetValue);
+    set_value(targetValue, 1.0);
     d->qValues[childIdx] = targetValue;
 }
 
@@ -543,6 +544,17 @@ float Node::get_value() const
     return valueSum / realVisitsSum;
 }
 
+float Node::get_value_weight(bool useUncertainty) const
+{
+    if (useUncertainty)
+    {
+        return 1.; //TODO: return the actual weight here
+    }
+    else {
+        return 1.;
+    }
+}
+
 float Node::get_value_display() const
 {
     if (is_win_node_type(d->nodeType)) {
@@ -650,9 +662,10 @@ DynamicVector<float>& Node::get_policy_prob_small()
     return policyProbSmall;
 }
 
-void Node::set_value(float value)
+void Node::set_value(float value, float scale)
 {
-    ++this->realVisitsSum;
+    info_string("set a value to " + std::to_string(scale));
+    this->realVisitsSum += scale;
     this->valueSum = value * this->realVisitsSum;
 }
 
@@ -831,7 +844,7 @@ void Node::check_for_terminal(StateObj* pos)
             mark_as_loss();
             break;
         case TERMINAL_CUSTOM:
-            set_value(customValue);
+            set_value(customValue, 1.0);
         case TERMINAL_NONE:
             ;  // pass
         }

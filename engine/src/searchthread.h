@@ -62,6 +62,7 @@ private:
     unique_ptr<FixedVector<Node*>> newNodes;
     unique_ptr<FixedVector<SideToMove>> newNodeSideToMove;
     unique_ptr<FixedVector<float>> transpositionValues;
+    unique_ptr<FixedVector<float>> transpositionValueWeights;
 
     vector<Trajectory> newTrajectories;
     vector<Trajectory> transpositionTrajectories;
@@ -178,7 +179,7 @@ private:
     Node* get_new_child_to_evaluate(NodeDescription& description);
 
     void backup_values(FixedVector<Node*>& nodes, vector<Trajectory>& trajectories);
-    void backup_values(FixedVector<float>* values, vector<Trajectory>& trajectories);
+    void backup_values(FixedVector<float>* values, FixedVector<float>* value_weights, vector<Trajectory>& trajectories);
 
     /**
      * @brief select_enhanced_move Selects an enhanced move (e.g. checking move) which has not been explored under given conditions.
@@ -192,7 +193,7 @@ void run_search_thread(SearchThread *t);
 
 void fill_nn_results(size_t batchIdx, bool isPolicyMap, const float* valueOutputs, const float* probOutputs, const float* auxiliaryOutputs, Node *node, size_t& tbHits, bool mirrorPolicy, const SearchSettings* searchSettings, bool isRootNodeTB);
 void node_post_process_policy(Node *node, float temperature, const SearchSettings* searchSettings);
-void node_assign_value(Node *node, const float* valueOutputs, size_t& tbHits, size_t batchIdx, bool isRootNodeTB);
+void node_assign_value(Node *node, const float* valueOutputs, size_t& tbHits, size_t batchIdx, bool isRootNodeTB, const float* auxiliaryOutputs);
 
 /**
  * @brief random_root_playout Uses random move exploration (epsilon greedy) from the given position. The probability for doing a random move decays by depth.

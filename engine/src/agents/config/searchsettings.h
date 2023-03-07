@@ -68,6 +68,8 @@ struct SearchSettings
     bool reuseTree;
     // If true, then the MCTS solver for terminals and tablebases will be active
     bool mctsSolver;
+    // If true, then we will use the uncertainty in MCTS search
+    bool useUncertainty;
     SearchSettings();
 
 };

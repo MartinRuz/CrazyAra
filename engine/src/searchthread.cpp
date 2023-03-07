@@ -46,6 +46,7 @@ SearchThread::SearchThread(NeuralNetAPI *netBatch, const SearchSettings* searchS
     newNodes(make_unique<FixedVector<Node*>>(searchSettings->batchSize)),
     newNodeSideToMove(make_unique<FixedVector<SideToMove>>(searchSettings->batchSize)),
     transpositionValues(make_unique<FixedVector<float>>(searchSettings->batchSize*2)),
+    transpositionValueWeights(make_unique<FixedVector<float>>(searchSettings->batchSize*2)),
     isRunning(true), mapWithMutex(mapWithMutex), searchSettings(searchSettings),
     tbHits(0), depthSum(0), depthMax(0), visitsPreSearch(0),
 #ifdef MCTS_SINGLE_PLAYER
@@ -92,7 +93,9 @@ Node* SearchThread::add_new_node_to_tree(StateObj* newState, Node* parentNode, C
     Node* newNode = parentNode->add_new_node_to_tree(mapWithMutex, newState, childIdx, searchSettings, transposition);
     if (transposition) {
         const float qValue =  parentNode->get_child_node(childIdx)->get_value();
+        const float value_weights = parentNode->get_child_node(childIdx)->get_child_number_visits(childIdx); // we have a pre-computed q-value that had this weight until now.
         transpositionValues->add_element(qValue);
+        transpositionValueWeights->add_element(value_weights);
         nodeBackup = NODE_TRANSPOSITION;
         return newNode;
     }
@@ -247,6 +250,7 @@ Node* SearchThread::get_new_child_to_evaluate(NodeDescription& description)
                 nextNode->unlock();
                 description.type = NODE_TRANSPOSITION;
                 transpositionValues->add_element(qValue);
+                transpositionValueWeights->add_element(1.0);
                 currentNode->unlock();
                 return nextNode;
             }
@@ -282,7 +286,7 @@ void fill_nn_results(size_t batchIdx, bool isPolicyMap, const float* valueOutput
 {
     node->set_probabilities_for_moves(get_policy_data_batch(batchIdx, probOutputs, isPolicyMap), mirrorPolicy);
     node_post_process_policy(node, searchSettings->nodePolicyTemperature, searchSettings);
-    node_assign_value(node, valueOutputs, tbHits, batchIdx, isRootNodeTB);
+    node_assign_value(node, valueOutputs, tbHits, batchIdx, isRootNodeTB, auxiliaryOutputs);
 #ifdef MCTS_STORE_STATES
     node->set_auxiliary_outputs(get_auxiliary_data_batch(batchIdx, auxiliaryOutputs));
 #endif
@@ -306,7 +310,7 @@ void SearchThread::backup_value_outputs()
 {
     backup_values(*newNodes, newTrajectories);
     newNodeSideToMove->reset_idx();
-    backup_values(transpositionValues.get(), transpositionTrajectories);
+    backup_values(transpositionValues.get(), transpositionValueWeights.get(), transpositionTrajectories);
 }
 
 void SearchThread::backup_collisions() {
@@ -356,7 +360,7 @@ void SearchThread::create_mini_batch()
 
         if(description.type == NODE_TERMINAL) {
             ++numTerminalNodes;
-            backup_value<true>(newNode->get_value(), searchSettings->virtualLoss, trajectoryBuffer, searchSettings->mctsSolver);
+            backup_value<true>(newNode->get_value(), newNode->get_value_weight(searchSettings->useUncertainty), searchSettings->virtualLoss, trajectoryBuffer, searchSettings->mctsSolver);
         }
         else if (description.type == NODE_COLLISION) {
             // store a pointer to the collision node in order to revert the virtual loss of the forward propagation
@@ -402,17 +406,18 @@ void SearchThread::backup_values(FixedVector<Node*>& nodes, vector<Trajectory>& 
         const bool solveForTerminal = searchSettings->mctsSolver && node->is_tablebase();
         backup_value<false>(node->get_value(), searchSettings->virtualLoss, trajectories[idx], solveForTerminal);
 #else
-        backup_value<false>(node->get_value(), searchSettings->virtualLoss, trajectories[idx], false);
+        backup_value<false>(node->get_value(), node->get_value_weight(searchSettings->useUncertainty), searchSettings->virtualLoss, trajectories[idx], false);
 #endif
     }
     nodes.reset_idx();
     trajectories.clear();
 }
 
-void SearchThread::backup_values(FixedVector<float>* values, vector<Trajectory>& trajectories) {
+void SearchThread::backup_values(FixedVector<float>* values, FixedVector<float>* value_weights, vector<Trajectory>& trajectories) {
     for (size_t idx = 0; idx < values->size(); ++idx) {
         const float value = values->get_element(idx);
-        backup_value<true>(value, searchSettings->virtualLoss, trajectories[idx], false);
+        const float value_weight = value_weights->get_element(idx);
+        backup_value<true>(value, value_weight, searchSettings->virtualLoss, trajectories[idx], false);
     }
     values->reset_idx();
     trajectories.clear();
@@ -442,7 +447,7 @@ ChildIdx SearchThread::select_enhanced_move(Node* currentNode) const {
     return uint16_t(-1);
 }
 
-void node_assign_value(Node *node, const float* valueOutputs, size_t& tbHits, size_t batchIdx, bool isRootNodeTB)
+void node_assign_value(Node *node, const float* valueOutputs, size_t& tbHits, size_t batchIdx, bool isRootNodeTB, const float* auxiliaryOutputs)
 {
 #ifdef MCTS_TB_SUPPORT
     if (node->is_tablebase()) {
@@ -455,7 +460,7 @@ void node_assign_value(Node *node, const float* valueOutputs, size_t& tbHits, si
         return;
     }
 #endif
-    node->set_value(valueOutputs[batchIdx]);
+    node->set_value(valueOutputs[batchIdx], auxiliaryOutputs[batchIdx]);
 }
 
 void node_post_process_policy(Node *node, float temperature, const SearchSettings* searchSettings)

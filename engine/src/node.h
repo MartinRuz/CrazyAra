@@ -187,7 +187,7 @@ public:
      * @param solveForTerminal Decides if the terminal solver will be used
      */
     template<bool freeBackup>
-    void revert_virtual_loss_and_update(ChildIdx childIdx, float value, float virtualLoss, bool solveForTerminal)
+    void revert_virtual_loss_and_update(ChildIdx childIdx, float value, float value_weight, float virtualLoss, bool solveForTerminal)
     {
         lock();
         // decrement virtual loss counter
@@ -196,15 +196,15 @@ public:
         valueSum += value;
         ++realVisitsSum;
 
-        if (d->childNumberVisits[childIdx] == virtualLoss) {
+        if (d->qValues[childIdx] == Q_INIT) { //when nothing has been changed so far, maybe use a realvisits counter?
             // set new Q-value based on return
             // (the initialization of the Q-value was by Q_INIT which we don't want to recover.)
-            d->qValues[childIdx] = value;
+            d->qValues[childIdx] = value * value_weight;
         }
         else {
             // revert virtual loss and update the Q-value
             assert(d->childNumberVisits[childIdx] != 0);
-            d->qValues[childIdx] = (double(d->qValues[childIdx]) * d->childNumberVisits[childIdx] + virtualLoss + value) / d->childNumberVisits[childIdx];
+            d->qValues[childIdx] = (double(d->qValues[childIdx]) * d->childNumberVisits[childIdx] + virtualLoss + value * value_weight) / (d->childNumberVisits[childIdx] - 1 + value_weight);
             assert(!isnan(d->qValues[childIdx]));
         }
 
@@ -248,6 +248,7 @@ public:
     bool is_terminal() const;
     bool has_nn_results() const;
     float get_value() const;
+    float get_value_weight(bool useUncertainty) const;
 
     /**
      * @brief get_value_display Return value evaluation which can be used for logging
@@ -330,7 +331,7 @@ public:
      */
     void enhance_moves(const SearchSettings* searchSettings);
 
-    void set_value(float value);
+    void set_value(float value, float scale);
     uint16_t main_child_idx_for_parent() const;
 
     /**
@@ -770,12 +771,13 @@ float get_transposition_q_value(uint_fast32_t transposVisits, double transposQVa
  * The value is flipped at every ply.
  * @param rootNode Root node of the tree
  * @param value Value evaluation to backup, this is the NN eval in the general case or can be from a terminal node
+ * @param value_weight this is the weight aka uncertainty that is assigned to the value
  * @param virtualLoss Virtual loss value
  * @param trajectory Trajectory on how to get to the given value eval
  * @param solveForTerminal Decides if the terminal solver will be used
  */
 template <bool freeBackup>
-void backup_value(float value, float virtualLoss, const Trajectory& trajectory, bool solveForTerminal) {
+void backup_value(float value, float value_weight, float virtualLoss, const Trajectory& trajectory, bool solveForTerminal) {
     double targetQValue = 0;
     for (auto it = trajectory.rbegin(); it != trajectory.rend(); ++it) {
         if (targetQValue != 0) {
@@ -788,8 +790,8 @@ void backup_value(float value, float virtualLoss, const Trajectory& trajectory, 
 #ifndef MCTS_SINGLE_PLAYER
         value = -value;
 #endif
-        freeBackup ? it->node->revert_virtual_loss_and_update<true>(it->childIdx, value, virtualLoss, solveForTerminal) :
-                   it->node->revert_virtual_loss_and_update<false>(it->childIdx, value, virtualLoss, solveForTerminal);
+        freeBackup ? it->node->revert_virtual_loss_and_update<true>(it->childIdx, value, value_weight, virtualLoss, solveForTerminal) :
+                   it->node->revert_virtual_loss_and_update<false>(it->childIdx, value, value_weight, virtualLoss, solveForTerminal);
 
         if (it->node->is_transposition()) {
             targetQValue = it->node->get_value();
