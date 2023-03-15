@@ -29,7 +29,7 @@
 
 void NodeData::add_empty_node()
 {
-    append(childNumberVisits, 0U);
+    append(childNumberVisits, 0.);
     append(qValues, Q_INIT);
     append(virtualLossCounter, uint8_t(0));
     append(nodeTypes, UNSOLVED);
@@ -60,7 +60,7 @@ void NodeData::reserve_initial_space()
 
 NodeData::NodeData():
     freeVisits(0),
-    visitSum(0),
+    visitSum(0.),
     checkmateIdx(NO_CHECKMATE),
     endInPly(0),
     noVisitIdx(1),

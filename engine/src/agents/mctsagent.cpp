@@ -179,7 +179,7 @@ void MCTSAgent::create_new_root_node(StateObj* state)
 #else
     state->get_state_planes(true, inputPlanes, net->get_version());
     net->predict(inputPlanes, valueOutputs, probOutputs, auxiliaryOutputs);
-    info_string(valueOutputs);
+    //info_string(valueOutputs);
     /*float randomNumber = ((float)rand() / RAND_MAX);
     info_string(randomNumber);
     info_string(auxiliaryOutputs + "auxiliary");

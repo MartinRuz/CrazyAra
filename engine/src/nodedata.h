@@ -87,14 +87,14 @@ class Node;
  */
 struct NodeData
 {
-    DynamicVector<uint32_t> childNumberVisits;
+    DynamicVector<double> childNumberVisits;
     DynamicVector<float> qValues;
     vector<shared_ptr<Node>> childNodes;
     DynamicVector<uint8_t> virtualLossCounter;
     DynamicVector<NodeType> nodeTypes;
 
     uint32_t freeVisits;
-    uint32_t visitSum;
+    double visitSum;
 
     uint16_t checkmateIdx;
     uint16_t endInPly;

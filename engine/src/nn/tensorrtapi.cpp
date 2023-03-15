@@ -164,10 +164,10 @@ void TensorrtAPI::bind_executor()
     memorySizes[idxPolicyOutput] = batchSize * get_nb_policy_values() * sizeof(float);
 #ifdef DYNAMIC_NN_ARCH
     if (nnDesign.hasAuxiliaryOutputs) {
-        memorySizes[idxAuxiliaryOutput] = batchSize * get_nb_auxiliary_outputs() * sizeof (float);
+        memorySizes[idxAuxiliaryOutput] = batchSize * get_nb_auxiliary_outputs() * sizeof(float);
 #else
-    if (StateConstants::NB_AUXILIARY_OUTPUTS()) {
-        memorySizes[idxAuxiliaryOutput] = batchSize * StateConstants::NB_AUXILIARY_OUTPUTS() * sizeof (float);
+    if (StateConstants::NB_AUXILIARY_OUTPUTS()){
+        memorySizes[idxAuxiliaryOutput] = batchSize * (StateConstants::NB_AUXILIARY_OUTPUTS()) * sizeof(float);
 #endif
         CHECK(cudaMalloc(&deviceMemory[idxAuxiliaryOutput], memorySizes[idxAuxiliaryOutput]));
     }

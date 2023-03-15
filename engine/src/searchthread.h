@@ -62,7 +62,7 @@ private:
     unique_ptr<FixedVector<Node*>> newNodes;
     unique_ptr<FixedVector<SideToMove>> newNodeSideToMove;
     unique_ptr<FixedVector<float>> transpositionValues;
-    unique_ptr<FixedVector<float>> transpositionValueWeights;
+    unique_ptr<FixedVector<double>> transpositionValueWeights;
 
     vector<Trajectory> newTrajectories;
     vector<Trajectory> transpositionTrajectories;
@@ -179,7 +179,7 @@ private:
     Node* get_new_child_to_evaluate(NodeDescription& description);
 
     void backup_values(FixedVector<Node*>& nodes, vector<Trajectory>& trajectories);
-    void backup_values(FixedVector<float>* values, FixedVector<float>* value_weights, vector<Trajectory>& trajectories);
+    void backup_values(FixedVector<float>* values, FixedVector<double>* value_weights, vector<Trajectory>& trajectories);
 
     /**
      * @brief select_enhanced_move Selects an enhanced move (e.g. checking move) which has not been explored under given conditions.

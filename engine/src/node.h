@@ -102,7 +102,7 @@ private:
     unique_ptr<StateObj> state;
 #endif
 
-    uint32_t realVisitsSum;
+    double realVisitsSum;
 
     // identifiers
     uint16_t pliesFromNull;
@@ -187,14 +187,14 @@ public:
      * @param solveForTerminal Decides if the terminal solver will be used
      */
     template<bool freeBackup>
-    void revert_virtual_loss_and_update(ChildIdx childIdx, float value, float value_weight, float virtualLoss, bool solveForTerminal)
+    void revert_virtual_loss_and_update(ChildIdx childIdx, float value, double value_weight, float virtualLoss, bool solveForTerminal)
     {
         lock();
         // decrement virtual loss counter
         update_virtual_loss_counter<false>(childIdx, virtualLoss);
 
-        valueSum += value;
-        ++realVisitsSum;
+        valueSum += value * value_weight;
+        realVisitsSum += value_weight;
 
         if (d->qValues[childIdx] == Q_INIT) { //when nothing has been changed so far, maybe use a realvisits counter?
             // set new Q-value based on return
@@ -203,7 +203,7 @@ public:
         }
         else {
             // revert virtual loss and update the Q-value
-            assert(d->childNumberVisits[childIdx] != 0);
+            assert(d->childNumberVisits[childIdx] != 0.);
             d->qValues[childIdx] = (double(d->qValues[childIdx]) * d->childNumberVisits[childIdx] + virtualLoss + value * value_weight) / (d->childNumberVisits[childIdx] - 1 + value_weight);
             assert(!isnan(d->qValues[childIdx]));
         }
@@ -400,7 +400,7 @@ public:
     bool is_root_node() const;
 
     DynamicVector<uint32_t> get_child_number_visits() const;
-    uint32_t get_child_number_visits(ChildIdx childIdx) const;
+    double get_child_number_visits(ChildIdx childIdx) const;
 
     void enable_has_nn_results();
     uint16_t plies_from_null() const;
@@ -777,7 +777,7 @@ float get_transposition_q_value(uint_fast32_t transposVisits, double transposQVa
  * @param solveForTerminal Decides if the terminal solver will be used
  */
 template <bool freeBackup>
-void backup_value(float value, float value_weight, float virtualLoss, const Trajectory& trajectory, bool solveForTerminal) {
+void backup_value(float value, double value_weight, float virtualLoss, const Trajectory& trajectory, bool solveForTerminal) {
     double targetQValue = 0;
     for (auto it = trajectory.rbegin(); it != trajectory.rend(); ++it) {
         if (targetQValue != 0) {

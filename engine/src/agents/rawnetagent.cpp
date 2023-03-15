@@ -63,6 +63,7 @@ void RawNetAgent::evaluate_board_state()
     size_t selIdx = argmax(evalInfo->policyProbSmall);
     Action bestmove = evalInfo->legalMoves[selIdx];
 
+    evalInfo->bestMoveQ[0] = valueOutputs[0];
     evalInfo->centipawns[0] = value_to_centipawn(valueOutputs[0]);
     evalInfo->movesToMate[0] = 0;
     evalInfo->depth = 1;

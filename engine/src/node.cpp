@@ -664,7 +664,7 @@ DynamicVector<float>& Node::get_policy_prob_small()
 
 void Node::set_value(float value, float scale)
 {
-    info_string("set a value to " + std::to_string(scale));
+    //info_string("set a value to " + std::to_string(scale));
     this->realVisitsSum += scale;
     this->valueSum = value * this->realVisitsSum;
 }
@@ -772,7 +772,7 @@ DynamicVector<uint32_t> Node::get_child_number_visits() const
     return d->childNumberVisits;
 }
 
-uint32_t Node::get_child_number_visits(ChildIdx childIdx) const
+double Node::get_child_number_visits(ChildIdx childIdx) const
 {
     return d->childNumberVisits[childIdx];
 }
