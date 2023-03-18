@@ -60,7 +60,7 @@ from DeepCrazyhouse.src.domain.variants.input_representation import board_to_pla
 from DeepCrazyhouse.configs.main_config import main_config
 
 def load_pgn_dataset(
-    dataset_type="train", part_id=0, verbose=True, normalize=False, q_value_ratio=0,
+    filepath, part_id=0, verbose=True, normalize=False, q_value_ratio=0,
 ):
     """
     Loads one part of the pgn dataset in form of planes / multidimensional numpy array.
@@ -83,30 +83,11 @@ def load_pgn_dataset(
             pgn_datasets - the dataset file handle (you can use .tree() to show the file structure)
     """
 
-    if dataset_type == "train":
-        zarr_filepaths = glob.glob("C:/Users/Martin/Documents/Uni/WS22/BA/openinvc/CrazyAra/dataset_crazyhouse/planes/train/dataset_08_03/" + "*.zip") #lichess_db_crazyhouse_rated_2018-07_0.zip" #glob.glob(main_config["planes_train_dir"] + "**/*.zip")
-    elif dataset_type == "val":
-        zarr_filepaths = glob.glob(main_config["planes_val_dir"] + "**/*.zip")
-    elif dataset_type == "test":
-        zarr_filepaths = glob.glob(main_config["planes_test_dir"] + "**/*.zip")
-    elif dataset_type == "mate_in_one":
-        zarr_filepaths = glob.glob(main_config["planes_mate_in_one_dir"] + "**/*.zip")
-    else:
-        raise Exception(
-            'Invalid dataset type "%s" given. It must be either "train", "val", "test" or "mate_in_one"' % dataset_type
-        )
-
-    if len(zarr_filepaths) < part_id + 1:
-        raise Exception("There aren't enough parts available (%d parts) in the given directory for partid=%d"
-                        % (len(zarr_filepaths), part_id))
-
     # load the zarr-files
-    pgn_datasets = zarr_filepaths
-    if verbose:
-        logging.debug("loading: %s ...", pgn_datasets[part_id])
-        logging.debug("")
 
-    pgn_dataset = zarr.group(store=zarr.ZipStore(pgn_datasets[part_id], mode="r"))
+    pgn_dataset = zarr.group(store=zarr.ZipStore(filepath, mode="r"))
+    #train_dataset = "C:/Users/Martin/Documents/Uni/WS22/BA/openinvc/CrazyAra/DeepCrazyhouse/src/preprocessing/lichess_db_crazyhouse_rated_2018-07_3.zip"
+    #pgn_dataset = zarr.group(store=zarr.ZipStore(train_dataset, mode="r"))
     start_indices, x, y_value, y_policy, plys_to_end, y_best_move_q = get_numpy_arrays(pgn_dataset)  # Get the data
 
     if verbose:
@@ -355,7 +336,7 @@ def get_eval(fen, num_nodes, engine):
             #print('\t' + text)
             txt = text.split(' ')
             idx = txt.index('value')
-            result = [fen, txt[idx+1]]
+            result = txt[idx+1]
     return result
 
 def analyze_fen(game):
@@ -653,47 +634,32 @@ def add_annotation_to_store(game_idx_start, pgn_sel, results_search, results_ini
         )
         store.close()
 
-def zarr_test(results_search, results_init):
+def zarr_test(filepath, results_search, results_init):
     t_s = time()
     eval_init_list = []
     eval_search_list = []
 
     export_dir = main_config["planes_train_dir"]
-    zarr_filepath = "C:/Users/Martin/Documents/Uni/WS22/BA/openinvc/CrazyAra/DeepCrazyhouse/src/preprocessing/lichess_db_crazyhouse_rated_2018-07_3.zip"
-    tmp_path = "C:/Users/Martin/Documents/Uni/WS22/BA/openinvc/CrazyAra/DeepCrazyhouse/src/preprocessing/lichess_db_crazyhouse_rated_2018-07_2.zip"
-    combined_path = "C:/Users/Martin/Documents/Uni/WS22/BA/openinvc/CrazyAra/DeepCrazyhouse/src/preprocessing/lichess_db_crazyhouse_rated_2018-07_combined.zip"
-
+    zarr_filepath = filepath
 
     for init in results_init:
         eval_init_list.append(init)
     for search in results_search:
         eval_search_list.append(search)
 
-    tmp_store = zarr.ZipStore(tmp_path, mode="w")
-    tmp_file = zarr.group(store=tmp_store, overwrite=True)
     store = zarr.ZipStore(zarr_filepath, mode="a")
     zarr_file = zarr.group(store=store, overwrite=False)
     start_indices, x, y_value, y_policy, plys_to_end, y_best_move_q = get_numpy_arrays(zarr_file)  # Get the data
-    #read = zarr.open(zarr_filepath, mode='a')
     compressor = Blosc(cname="lz4", clevel=5, shuffle=Blosc.SHUFFLE)
-    #new_group = tmp_file.create_group('eval_init')
-
-    #combined_store = zarr.ZipStore(combined_path, mode="w")
-    #print(zarr_file.info)
-
-    #eval_init_list = np.concatenate(eval_init_list, axis=0)
-    #eval_search_list = np.concatenate(eval_search_list, axis=0)
     eval_search_np = np.concatenate([np.array(x) for x in eval_search_list])
     eval_init_np = np.concatenate([np.array(x) for x in eval_init_list])
-
-    compressor = Blosc(cname="lz4", clevel=5, shuffle=Blosc.SHUFFLE)
 
     zarr_file.create_dataset(
         name="eval_init",
         data=eval_init_np,
         shape=eval_init_np.shape,
         dtype=eval_init_np.dtype,
-        chunks=(128, eval_init_np.shape[1]),
+        chunks=(eval_init_np.shape[0]),
         synchronizer=zarr.ThreadSynchronizer(),
         compression=compressor,
     )
@@ -703,12 +669,11 @@ def zarr_test(results_search, results_init):
         data=eval_search_np,
         shape=eval_search_np.shape,
         dtype=eval_search_np.dtype,
-        chunks=(128, eval_search_np.shape[1]),
+        chunks=(eval_search_np.shape[0]),
         synchronizer=zarr.ThreadSynchronizer(),
         compression=compressor,
     )
-    #new_group.close()
-    tmp_store.close()
+    store.close()
 
 
 
@@ -729,36 +694,45 @@ if __name__ == "__main__":
         stdout=subprocess.PIPE,
         bufsize=1,
     )
+    dataset_type = "train" #change to val or test whenever necessary
+    #TODO: change to main_config load
+    if dataset_type == "train":
+        zarr_filepaths = glob.glob("C:/Users/Martin/Documents/Uni/WS22/BA/openinvc/CrazyAra/dataset_crazyhouse/planes/train/dataset_08_03/" + "*.zip") #lichess_db_crazyhouse_rated_2018-07_0.zip" #glob.glob(main_config["planes_train_dir"] + "**/*.zip")
+    elif dataset_type == "val":
+        zarr_filepaths = glob.glob(main_config["planes_val_dir"] + "**/*.zip")
+    elif dataset_type == "test":
+        zarr_filepaths = glob.glob(main_config["planes_test_dir"] + "**/*.zip")
+    elif dataset_type == "mate_in_one":
+        zarr_filepaths = glob.glob(main_config["planes_mate_in_one_dir"] + "**/*.zip")
+    else:
+        raise Exception(
+            'Invalid dataset type "%s" given. It must be either "train", "val", "test" or "mate_in_one"' % dataset_type
+        )
     ROOT = logging.getLogger()
     ROOT.setLevel(logging.INFO)
-    #import_dir = ''
-    #pgn_name = 'gameone.pgn'
-    #pgn = open(pgn_name, 'r')
-    #game = chess.pgn.read_game(pgn)  # load the pgn file
-    #print(game)
-    start_indices, planes, x_value, y_value, y_policy, _ = load_pgn_dataset("train", 0, True, False, 0)
-    i = 0
-    game = []
-    j = 1
-    results_search = []
-    results_init = []
     put('setoption name Use_Raw_Network value true', engine_init)
     put('\n', engine_init)
     get(engine_init)
-    for plane in planes:
-        game.append(planes_to_board(planes=plane))
-        i += 1
-        if j == len(x_value)-1 or i == start_indices[j]:
-            print(j)
-            if j != len(start_indices) - 1:
-                j+=1
-            eval_search, eval_init = analyze_fen(game)
-            results_search.append(eval_search)
-            results_init.append(eval_init)
-            game = []
-            #if j == 5:
-            #    break
-    #print(results_search)
-    #print(results_init)
-    #add_annotation_to_store(0, games, results_search, results_init)
-    zarr_test(results_search, results_init)
+    for filepath in zarr_filepaths:
+        i = 0
+        game = []
+        j = 1
+        results_search = []
+        results_init = []
+        start_indices, planes, x_value, y_value, y_policy, _ = load_pgn_dataset(filepath, 0, True, False, 0)
+        print("filepath: ")
+        print(filepath)
+        for plane in planes:
+            game.append(planes_to_board(planes=plane))
+            i += 1
+            if i == start_indices[j] or i == len(planes) - 1: #TODO: second clause should capture the last game
+                print(j)
+                if j != len(start_indices) - 1:
+                    j+=1
+                eval_search, eval_init = analyze_fen(game)
+                results_search.append(eval_search)
+                results_init.append(eval_init)
+                game = []
+                #if j == 5:
+                #    break
+        zarr_test(filepath, results_search, results_init)
