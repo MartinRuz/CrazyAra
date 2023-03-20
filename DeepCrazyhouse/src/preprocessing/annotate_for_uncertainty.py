@@ -10,7 +10,6 @@ import os
 import subprocess
 from multiprocessing import Pool
 from time import time
-import xarray as xr
 from numcodecs import Blosc
 
 from DeepCrazyhouse.src.domain.util import get_dic_sorted_by_key
