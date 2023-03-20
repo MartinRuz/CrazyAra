@@ -35,7 +35,8 @@ void print_single_pv(std::ostream& os, const EvalInfo& evalInfo, size_t idx, siz
     os << "depth " << evalInfo.depth
        << " seldepth " << evalInfo.selDepth
        << " multipv " << idx+1
-       << " score";
+       << " value " << evalInfo.bestMoveQ[idx]
+       << " score ";
 
     if (evalInfo.movesToMate[idx] == 0) {
         os << " cp " << evalInfo.centipawns[idx];
@@ -106,6 +107,7 @@ int value_to_centipawn(float value)
         return sgn(value) * 9999;
     }
     // use logarithmic scaling with basis 1.1 as a pseudo centipawn conversion
+    int result = int(-(sgn(value) * std::log(1.0f - std::abs(value)) / std::log(VALUE_TO_CENTI_PARAM)) * 100.0f);
     return int(-(sgn(value) * std::log(1.0f - std::abs(value)) / std::log(VALUE_TO_CENTI_PARAM)) * 100.0f);
 }
 

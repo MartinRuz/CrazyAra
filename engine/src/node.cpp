@@ -222,19 +222,19 @@ bool Node::only_won_tb_child_nodes() const
 
 void Node::mark_as_tb_loss()
 {
-    set_value(LOSS_VALUE);
+    set_value(LOSS_VALUE, 1.0);
     d->nodeType = TB_LOSS;
 }
 
 void Node::mark_as_tb_draw()
 {
-    set_value(DRAW_VALUE);
+    set_value(DRAW_VALUE, 1.0);
     d->nodeType = TB_DRAW;
 }
 
 void Node::mark_as_tb_win()
 {
-    set_value(WIN_VALUE);
+    set_value(WIN_VALUE, 1.0);
     d->nodeType = TB_WIN;
 }
 #endif

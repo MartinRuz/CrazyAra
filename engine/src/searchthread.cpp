@@ -404,7 +404,7 @@ void SearchThread::backup_values(FixedVector<Node*>& nodes, vector<Trajectory>& 
         Node* node = nodes.get_element(idx);
 #ifdef MCTS_TB_SUPPORT
         const bool solveForTerminal = searchSettings->mctsSolver && node->is_tablebase();
-        backup_value<false>(node->get_value(), searchSettings->virtualLoss, trajectories[idx], solveForTerminal);
+        backup_value<false>(node->get_value(), node->get_value_weight(searchSettings->useUncertainty), searchSettings->virtualLoss, trajectories[idx], solveForTerminal);
 #else
         backup_value<false>(node->get_value(), node->get_value_weight(searchSettings->useUncertainty), searchSettings->virtualLoss, trajectories[idx], false);
 #endif
@@ -455,7 +455,7 @@ void node_assign_value(Node *node, const float* valueOutputs, size_t& tbHits, si
         // TODO: Improvement the value assignment for table bases
         if (node->get_value() != 0 && isRootNodeTB) {
             // use the average of the TB entry and NN eval for non-draws
-            node->set_value((valueOutputs[batchIdx] + node->get_value()) * 0.5f);
+            node->set_value((valueOutputs[batchIdx] + node->get_value()) * 0.5f, 1.0);
         }
         return;
     }
