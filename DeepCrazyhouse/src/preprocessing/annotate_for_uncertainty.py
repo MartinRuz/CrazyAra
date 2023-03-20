@@ -375,14 +375,14 @@ def zarr_test(filepath, results_search, results_init):
 
 if __name__ == "__main__":
     engine_init = subprocess.Popen(
-        main_config["default_dir"] + '/CrazyAra.exe',
+        '/home/ml-mruzicka/CrazyAra.exe',
         universal_newlines=True,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         bufsize=1,
     )
     engine_search = subprocess.Popen(
-        main_config["default_dir"] + '/CrazyAra.exe',
+        '/home/ml-mruzicka/CrazyAra.exe',
         universal_newlines=True,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
