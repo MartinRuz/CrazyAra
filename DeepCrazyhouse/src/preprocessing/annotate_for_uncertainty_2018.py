@@ -383,17 +383,17 @@ def zarr_test(filepath, results_search, results_init):
 
 
 if __name__ == "__main__":
-    rtpt = RTPT(name_initials='MR', experiment_name='AnnotateCrazyhouse', max_iterations=200)
+    rtpt = RTPT(name_initials='MR', experiment_name='AnnotateCrazyhouse_18', max_iterations=119)
     rtpt.start()
     engine_init = subprocess.Popen(
-        'root/CrazyAra/CrazyAra',#C:/Users/Martin/Documents/Uni/WS22/BA/openinvc/CrazyAra/CrazyAra.exe', #root/CrazyAra/CrazyAra',
+        '/root/CrazyAra/CrazyAra',#C:/Users/Martin/Documents/Uni/WS22/BA/openinvc/CrazyAra/CrazyAra.exe', #root/CrazyAra/CrazyAra',
         universal_newlines=True,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         bufsize=1,
     )
     engine_search = subprocess.Popen(
-        'root/CrazyAra/CrazyAra',#C:/Users/Martin/Documents/Uni/WS22/BA/openinvc/CrazyAra/CrazyAra.exe', #/root/CrazyAra/CrazyAra',
+        '/root/CrazyAra/CrazyAra',#C:/Users/Martin/Documents/Uni/WS22/BA/openinvc/CrazyAra/CrazyAra.exe', #/root/CrazyAra/CrazyAra',
         universal_newlines=True,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
@@ -402,23 +402,21 @@ if __name__ == "__main__":
 
     ROOT = logging.getLogger()
     ROOT.setLevel(logging.INFO)
-    logging.info("hello world")
     put('setoption name Use_Raw_Network value true', engine_init)
     put('\n', engine_init)
     put('setoption name MCTS_Solver value false', engine_init)
     put('\n', engine_init)
-    #put('setoption name First_Device_ID value 10', engine_init)
-    #put('\n', engine_init)
-    #put('setoption name Last_Device_ID value 10', engine_init)
-    #put('\n', engine_init)
-    #put('setoption name Model_Directory value /root/CrazyAra/model/CrazyAra/crazyhouse/', engine_init)
-    #put('\n', engine_init)
+    put('setoption name First_Device_ID value 14', engine_init)
+    put('\n', engine_init)
+    put('setoption name Last_Device_ID value 14', engine_init)
+    put('\n', engine_init)
+    put('setoption name Model_Directory value /root/CrazyAra/model/CrazyAra/crazyhouse/', engine_init)
+    put('\n', engine_init)
     get(engine_init)
-    logging.info("initted")
-    #put('setoption name First_Device_ID value 10', engine_search)
-    #put('\n', engine_search)
-    #put('setoption name Last_Devica_ID value 10', engine_search)
-    #put('\n', engine_search)
+    put('setoption name First_Device_ID value 14', engine_search)
+    put('\n', engine_search)
+    put('setoption name Last_Device_ID value 14', engine_search)
+    put('\n', engine_search)
     get(engine_search)
 
     dataset_types = ["train"]#, "val", "test", "mate_in_one"]
@@ -433,7 +431,6 @@ if __name__ == "__main__":
             zarr_filepaths = glob.glob(main_config["planes_mate_in_one_dir"] + "**/*.zip")
 
         for filepath in zarr_filepaths:
-            logging.info(f'start new dataset {filepath}')
             i = 0
             game = []
             j = 1
