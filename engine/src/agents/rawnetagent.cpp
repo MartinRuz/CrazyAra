@@ -43,7 +43,8 @@ void RawNetAgent::evaluate_board_state()
     assert(evalInfo->legalMoves.size() >= 1);
 
     // immediately stop the search if there's only one legal move
-    if (evalInfo->legalMoves.size() == 1) {
+    //this was removed to get correct evaluations (useful e.g. in analysis mode)
+    /*if (evalInfo->legalMoves.size() == 1) {
         evalInfo->policyProbSmall.resize(1UL);
         evalInfo->policyProbSmall = 1;
           // a value of 0 is likely a wrong evaluation but won't be written to stdout
@@ -52,7 +53,7 @@ void RawNetAgent::evaluate_board_state()
         evalInfo->nodes = 0;
         evalInfo->pv[0] = {evalInfo->legalMoves[0]};
         return;
-    }
+    }*/
     state->get_state_planes(true, inputPlanes, net->get_version());
     net->predict(inputPlanes, valueOutputs, probOutputs, auxiliaryOutputs);
     state->set_auxiliary_outputs(auxiliaryOutputs);

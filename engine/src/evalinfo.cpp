@@ -35,7 +35,7 @@ void print_single_pv(std::ostream& os, const EvalInfo& evalInfo, size_t idx, siz
     os << "depth " << evalInfo.depth
        << " seldepth " << evalInfo.selDepth
        << " multipv " << idx+1
-       << " value " << evalInfo.bestMoveQ[idx]
+       << " value " << evalInfo.value[idx]
        << " score ";
 
     if (evalInfo.movesToMate[idx] == 0) {
@@ -90,6 +90,7 @@ void EvalInfo::init_vectors_for_multi_pv(size_t multiPV)
     pv.resize(multiPV);
     movesToMate.resize(multiPV);
     bestMoveQ.resize(multiPV);
+    value.resize(multiPV);
     centipawns.resize(multiPV);
 }
 
@@ -138,6 +139,7 @@ void set_eval_for_single_pv(EvalInfo& evalInfo, const Node* rootNode, size_t idx
         nextNode->get_principal_variation(pv, searchSettings->qValueWeight, searchSettings->qVetoDelta);
         evalInfo.pv[idx] = pv;
         evalInfo.bestMoveQ[idx] = get_best_move_q(nextNode);
+        evalInfo.value[idx] = rootNode->get_value_display();
 
         // scores
         // return mate score for known wins and losses
@@ -162,13 +164,16 @@ void set_eval_for_single_pv(EvalInfo& evalInfo, const Node* rootNode, size_t idx
         else {
 #ifndef MCTS_SINGLE_PLAYER
             evalInfo.bestMoveQ[idx] = -nextNode->get_value();
+            evalInfo.value[idx] = -nextNode->get_value();
 #else
             evalInfo.bestMoveQ[idx] = nextNode->get_value();
+            evalInfo.value[idx] = nextNode->get_value();
 #endif
         }
     }
     else {
         evalInfo.bestMoveQ[idx] = Q_INIT;
+        evalInfo.value[idx] = Q_INIT;
     }
     evalInfo.movesToMate[idx] = 0;
     evalInfo.centipawns[idx] = value_to_centipawn(evalInfo.bestMoveQ[idx]);
@@ -221,6 +226,7 @@ void update_eval_info(EvalInfo& evalInfo, const Node* rootNode, size_t tbHits, s
         evalInfo.pv[0] = {rootNode->get_action(0)};
         // there are no q-values available, therefore use the state value evaluation as bestMoveQ
         evalInfo.bestMoveQ[0] = rootNode->get_value_display();
+        evalInfo.value[0] = rootNode->get_value_display();
         evalInfo.centipawns[0] = value_to_centipawn(evalInfo.bestMoveQ[0]);
     }
     else {

@@ -48,6 +48,7 @@ struct EvalInfo
     DynamicVector<double> childNumberVisits;
     DynamicVector<float> qValues;
     std::vector<int> centipawns;
+    std::vector<float> value;
     size_t depth;
     size_t selDepth;
     uint_fast32_t nodes;
