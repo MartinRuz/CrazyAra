@@ -8,6 +8,8 @@ TODO description
 """
 import os
 from rtpt.rtpt import RTPT
+from engine.src.rl.binaryio import BinaryIO
+from engine.src.rl.fileio import FileIO
 import subprocess
 from multiprocessing import Pool
 from time import time
@@ -381,9 +383,25 @@ def zarr_test(filepath, results_search, results_init):
     )
     store.close()
 
+def change_binary_name(binary_dir: str, current_binary_name: str, process_name: str, nn_update_idx: int):
+    """
+    Change the name of the binary to the process' name (which includes initials,
+    binary name and remaining time) & additionally add the current epoch.
+
+    :return: the new binary name
+    """
+    idx = process_name.find(f'#')
+    new_binary_name = f'{process_name[:idx]}_UP={nn_update_idx}{process_name[idx:]}'
+
+    if not os.path.exists(binary_dir + new_binary_name):
+        os.rename(binary_dir + current_binary_name, binary_dir + new_binary_name)
+        logging.info(f'Changed binary name to: {new_binary_name}')
+
+    return new_binary_name
+
 
 if __name__ == "__main__":
-    rtpt = RTPT(name_initials='MR', experiment_name='AnnotateCrazyhouse_17', max_iterations=239)
+    rtpt = RTPT(name_initials='MR', experiment_name='AnnotateCrazyhouse_17', max_iterations=196)
     rtpt.start()
     engine_init = subprocess.Popen(
         '/root/CrazyAra/CrazyAra',#C:/Users/Martin/Documents/Uni/WS22/BA/openinvc/CrazyAra/CrazyAra.exe', #root/CrazyAra/CrazyAra',
@@ -406,30 +424,33 @@ if __name__ == "__main__":
     put('\n', engine_init)
     put('setoption name MCTS_Solver value false', engine_init)
     put('\n', engine_init)
-    put('setoption name First_Device_ID value 13', engine_init)
+    put('setoption name First_Device_ID value 10', engine_init)
     put('\n', engine_init)
-    put('setoption name Last_Device_ID value 13', engine_init)
+    put('setoption name Last_Device_ID value 10', engine_init)
     put('\n', engine_init)
     put('setoption name Model_Directory value /root/CrazyAra/model/CrazyAra/crazyhouse/', engine_init)
     put('\n', engine_init)
     get(engine_init)
-    put('setoption name First_Device_ID value 13', engine_search)
+    put('setoption name First_Device_ID value 10', engine_search)
     put('\n', engine_search)
-    put('setoption name Last_Device_ID value 13', engine_search)
+    put('setoption name Last_Device_ID value 10', engine_search)
     put('\n', engine_search)
     get(engine_search)
-
+    file_io = FileIO(orig_binary_name='CrazyAra', binary_dir='/root/CrazyAra/',
+                     uci_variant='crazyhouse', framework='pytorch')
+    binary_io = None
+    current_binary_name = 'CrazyAra'
     dataset_types = ["train"]#, "val", "test", "mate_in_one"]
     for dataset_type in dataset_types:
         if dataset_type == "train":
-            zarr_filepaths = glob.glob(main_config["planes_train_dir"] + "**/*2017*.zip")
+            zarr_filepaths = glob.glob("/home/ml-mruzicka/planes/train/**/*2017*.zip")
         elif dataset_type == "val":
             zarr_filepaths = glob.glob(main_config["planes_val_dir"] + "**/*.zip")
         elif dataset_type == "test":
             zarr_filepaths = glob.glob(main_config["planes_test_dir"] + "**/*.zip")
         elif dataset_type == "mate_in_one":
             zarr_filepaths = glob.glob(main_config["planes_mate_in_one_dir"] + "**/*.zip")
-
+        idx = 0
         for filepath in zarr_filepaths:
             i = 0
             game = []
@@ -452,3 +473,7 @@ if __name__ == "__main__":
                     #    break
             zarr_test(filepath, results_search, results_init)
             rtpt.step()
+            current_binary_name = change_binary_name(file_io.binary_dir, current_binary_name,
+                                                     rtpt._get_title(), idx)
+            binary_io = BinaryIO(binary_path=file_io.binary_dir+current_binary_name)
+            idx += 1

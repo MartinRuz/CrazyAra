@@ -440,22 +440,18 @@ if __name__ == "__main__":
                      uci_variant='crazyhouse', framework='pytorch')
     binary_io = None
     current_binary_name = 'CrazyAra'
-    print("start for")
     dataset_types = ["train"]#, "val", "test", "mate_in_one"]
     for dataset_type in dataset_types:
         if dataset_type == "train":
-            zarr_filepaths = glob.glob(main_config["planes_train_dir"] + "**/*2016*.zip")
+            zarr_filepaths = glob.glob("/home/ml-mruzicka/planes/train/**/*2016*.zip")
         elif dataset_type == "val":
             zarr_filepaths = glob.glob(main_config["planes_val_dir"] + "**/*.zip")
         elif dataset_type == "test":
             zarr_filepaths = glob.glob(main_config["planes_test_dir"] + "**/*.zip")
         elif dataset_type == "mate_in_one":
             zarr_filepaths = glob.glob(main_config["planes_mate_in_one_dir"] + "**/*.zip")
-        print(main_config["planes_train_dir"])
-        print(zarr_filepaths)
         idx = 0
         for filepath in zarr_filepaths:
-            print(i)
             i = 0
             game = []
             j = 1
