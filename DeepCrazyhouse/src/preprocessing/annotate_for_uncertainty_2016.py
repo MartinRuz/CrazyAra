@@ -351,7 +351,7 @@ def zarr_test(filepath, results_search, results_init):
     store = zarr.ZipStore(zarr_filepath, mode="a")
     zarr_file = zarr.group(store=store, overwrite=False)
     compressor = Blosc(cname="lz4", clevel=5, shuffle=Blosc.SHUFFLE)
-    zarr_statistics = zarr.open(store['statistics'], mode='a')
+    zarr_statistics = zarr.open(zarr_file['statistics'], mode='a')
 
     eval_init_np = results_init
     eval_search_np = results_search
