@@ -451,7 +451,7 @@ if __name__ == "__main__":
             zarr_filepaths = glob.glob(main_config["planes_test_dir"] + "**/*.zip")
         elif dataset_type == "mate_in_one":
             zarr_filepaths = glob.glob(main_config["planes_mate_in_one_dir"] + "**/*.zip")
-
+        print(zarr_filepaths)
         idx = 0
         for filepath in zarr_filepaths:
             print(i)
