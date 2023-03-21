@@ -351,17 +351,10 @@ def zarr_test(filepath, results_search, results_init):
     store = zarr.ZipStore(zarr_filepath, mode="a")
     zarr_file = zarr.group(store=store, overwrite=False)
     compressor = Blosc(cname="lz4", clevel=5, shuffle=Blosc.SHUFFLE)
-    zarr_statistics = zarr.open(zarr_file['statistics'], mode='a')
 
     eval_init_np = results_init
     eval_search_np = results_search
 
-    zarr_statistics.create_dataset(
-        name="nodes_for_search",
-        data='400',
-        synchronizer=zarr.ThreadSynchronizer(),
-        compression=compressor,
-    )
 
     zarr_file.create_dataset(
         name="eval_init",

@@ -351,17 +351,9 @@ def zarr_test(filepath, results_search, results_init):
     store = zarr.ZipStore(zarr_filepath, mode="a")
     zarr_file = zarr.group(store=store, overwrite=False)
     compressor = Blosc(cname="lz4", clevel=5, shuffle=Blosc.SHUFFLE)
-    zarr_statistics = zarr.open(store['statistics'], mode='a')
 
     eval_init_np = results_init
     eval_search_np = results_search
-
-    zarr_statistics.create_dataset(
-        name="nodes_for_search",
-        data='400',
-        synchronizer=zarr.ThreadSynchronizer(),
-        compression=compressor,
-    )
 
     zarr_file.create_dataset(
         name="eval_init",
@@ -431,9 +423,9 @@ if __name__ == "__main__":
     put('setoption name Model_Directory value /root/CrazyAra/model/CrazyAra/crazyhouse/', engine_init)
     put('\n', engine_init)
     get(engine_init)
-    put('setoption name First_Device_ID value 10', engine_search)
+    put('setoption name First_Device_ID value 13', engine_search)
     put('\n', engine_search)
-    put('setoption name Last_Device_ID value 10', engine_search)
+    put('setoption name Last_Device_ID value 13', engine_search)
     put('\n', engine_search)
     get(engine_search)
     file_io = FileIO(orig_binary_name='CrazyAra', binary_dir='/root/CrazyAra/',
