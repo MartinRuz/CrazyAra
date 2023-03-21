@@ -453,8 +453,8 @@ if __name__ == "__main__":
             zarr_filepaths = glob.glob(main_config["planes_mate_in_one_dir"] + "**/*.zip")
 
         idx = 0
-        print(idx)
         for filepath in zarr_filepaths:
+            print(i)
             i = 0
             game = []
             j = 1
