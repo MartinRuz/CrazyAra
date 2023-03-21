@@ -383,17 +383,17 @@ def zarr_test(filepath, results_search, results_init):
 
 
 if __name__ == "__main__":
-    rtpt = RTPT(name_initials='MR', experiment_name='AnnotateCrazyhouse', max_iterations=557)
+    rtpt = RTPT(name_initials='MR', experiment_name='AnnotateCrazyhouse', max_iterations=200)
     rtpt.start()
     engine_init = subprocess.Popen(
-        'C:/Users/Martin/Documents/Uni/WS22/BA/openinvc/CrazyAra/CrazyAra.exe', #root/CrazyAra/CrazyAra',
+        'root/CrazyAra/CrazyAra',#C:/Users/Martin/Documents/Uni/WS22/BA/openinvc/CrazyAra/CrazyAra.exe', #root/CrazyAra/CrazyAra',
         universal_newlines=True,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         bufsize=1,
     )
     engine_search = subprocess.Popen(
-        'C:/Users/Martin/Documents/Uni/WS22/BA/openinvc/CrazyAra/CrazyAra.exe', #/root/CrazyAra/CrazyAra',
+        'root/CrazyAra/CrazyAra',#C:/Users/Martin/Documents/Uni/WS22/BA/openinvc/CrazyAra/CrazyAra.exe', #/root/CrazyAra/CrazyAra',
         universal_newlines=True,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
