@@ -437,10 +437,10 @@ if __name__ == "__main__":
     put('\n', engine_search)
     get(engine_search)
     file_io = FileIO(orig_binary_name='CrazyAra', binary_dir='/root/CrazyAra/',
-                     uci_variant="crazyhouse", framework='pytorch')
+                     uci_variant='crazyhouse', framework='pytorch')
     binary_io = None
     current_binary_name = 'CrazyAra'
-
+    print("start for")
     dataset_types = ["train"]#, "val", "test", "mate_in_one"]
     for dataset_type in dataset_types:
         if dataset_type == "train":
@@ -453,6 +453,7 @@ if __name__ == "__main__":
             zarr_filepaths = glob.glob(main_config["planes_mate_in_one_dir"] + "**/*.zip")
 
         idx = 0
+        print(idx)
         for filepath in zarr_filepaths:
             i = 0
             game = []
