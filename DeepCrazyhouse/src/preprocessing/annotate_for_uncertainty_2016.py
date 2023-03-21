@@ -437,7 +437,7 @@ if __name__ == "__main__":
     put('\n', engine_search)
     get(engine_search)
     file_io = FileIO(orig_binary_name='CrazyAra', binary_dir='/root/CrazyAra/',
-                     uci_variant="crazyhouse")
+                     uci_variant="crazyhouse", framework='pytorch')
     binary_io = None
     current_binary_name = 'CrazyAra'
 
