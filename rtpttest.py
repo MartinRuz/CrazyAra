@@ -24,6 +24,8 @@ def change_binary_name(binary_dir: str, current_binary_name: str, process_name: 
     if not os.path.exists(binary_dir + new_binary_name):
         os.rename(binary_dir + current_binary_name, binary_dir + new_binary_name)
         logging.info(f'Changed binary name from {current_binary_name} to: {new_binary_name}')
+    else:
+        logging.info('unsuccessfully called')
 
     return new_binary_name
 
@@ -61,8 +63,9 @@ if __name__ == "__main__":
         start_indices, planes, x_value, y_value, y_policy, _ = load_pgn_dataset(filepath, 0, True, False, 0)
         planes = planes[:50]
         for plane in planes:
-            eval_search, eval_init = analyze_fen([planes_to_board(planes=plane)])
+            analyze_fen([planes_to_board(planes=plane)])
         rtpt.step()
+        print("took step")
         current_binary_name = change_binary_name(file_io.binary_dir, current_binary_name,
                                                  rtpt._get_title(), idx)
         binary_io = BinaryIO(binary_path=file_io.binary_dir + current_binary_name)
