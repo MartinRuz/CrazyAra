@@ -40,6 +40,10 @@ if __name__ == "__main__":
         bufsize=1,
     )
     print("opened")
+    put('setoption name Use_Raw_Network value true', engine_init)
+    put('\n', engine_init)
+    put('setoption name MCTS_Solver value false', engine_init)
+    put('\n', engine_init)
     put('setoption name First_Device_ID value 10', engine_init)
     put('\n', engine_init)
     put('setoption name Last_Device_ID value 10', engine_init)
