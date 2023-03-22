@@ -394,60 +394,21 @@ def change_binary_name(binary_dir: str, current_binary_name: str, process_name: 
 
 
 if __name__ == "__main__":
-    rtpt = RTPT(name_initials='MR', experiment_name='AnnotateCrazyhouse_16_2', max_iterations=196)
+    rtpt = RTPT(name_initials='MR', experiment_name='AnnotateCrazyhouse_16_2', max_iterations=110)
     rtpt.start()
-
     current_binary_name = 'CrazyAra'
     dataset_types = ["train"]#, "val", "test", "mate_in_one"]
     for dataset_type in dataset_types:
-        engine_init = subprocess.Popen(
-            '/root/CrazyAra/' + current_binary_name,
-            # C:/Users/Martin/Documents/Uni/WS22/BA/openinvc/CrazyAra/CrazyAra.exe', #root/CrazyAra/CrazyAra',
-            universal_newlines=True,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            bufsize=1,
-        )
-        engine_search = subprocess.Popen(
-            '/root/CrazyAra/' + current_binary_name,
-            # C:/Users/Martin/Documents/Uni/WS22/BA/openinvc/CrazyAra/CrazyAra.exe', #/root/CrazyAra/CrazyAra',
-            universal_newlines=True,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            bufsize=1,
-        )
-
-        ROOT = logging.getLogger()
-        ROOT.setLevel(logging.INFO)
-        put('setoption name Use_Raw_Network value true', engine_init)
-        put('\n', engine_init)
-        put('setoption name MCTS_Solver value false', engine_init)
-        put('\n', engine_init)
-        put('setoption name First_Device_ID value 1', engine_init)
-        put('\n', engine_init)
-        put('setoption name Last_Device_ID value 1', engine_init)
-        put('\n', engine_init)
-        put('setoption name Model_Directory value /root/CrazyAra/model/CrazyAra/crazyhouse/', engine_init)
-        put('\n', engine_init)
-        get(engine_init)
-        put('setoption name First_Device_ID value 1', engine_search)
-        put('\n', engine_search)
-        put('setoption name Last_Device_ID value 1', engine_search)
-        put('\n', engine_search)
-        get(engine_search)
-        file_io = FileIO(orig_binary_name=current_binary_name, binary_dir='/root/CrazyAra/',
-                         uci_variant='crazyhouse', framework='pytorch')
-        binary_io = None
         zarr_filepaths = []
         if dataset_type == "train":
-            for month in range(7, 10):
+            for month in range(7,10):
                 zarr_filepaths.extend(glob.glob(
                     '/home/ml-mruzicka/planes/train/**/*2016-0{}*.zip'.format(
                         month)))
-            for month in range(10, 13):
-                zarr_filepaths.extend(glob.glob(
-                    '/home/ml-mruzicka/planes/train/**/*2016-{}*.zip'.format(
-                        month)))
+                for month in range(10, 13):
+                    zarr_filepaths.extend(glob.glob(
+                        '/home/ml-mruzicka/planes/train/**/*2016-{}*.zip'.format(
+                            month)))
         elif dataset_type == "val":
             zarr_filepaths = glob.glob(main_config["planes_val_dir"] + "**/*.zip")
         elif dataset_type == "test":
@@ -456,6 +417,44 @@ if __name__ == "__main__":
             zarr_filepaths = glob.glob(main_config["planes_mate_in_one_dir"] + "**/*.zip")
         idx = 0
         for filepath in zarr_filepaths:
+            file_io = FileIO(orig_binary_name=current_binary_name, binary_dir='/root/CrazyAra/',
+                             uci_variant='crazyhouse', framework='pytorch')
+            binary_io = None
+            engine_init = subprocess.Popen(
+                '/root/CrazyAra/' + current_binary_name,
+                # C:/Users/Martin/Documents/Uni/WS22/BA/openinvc/CrazyAra/CrazyAra.exe', #root/CrazyAra/CrazyAra',
+                universal_newlines=True,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                bufsize=1,
+            )
+            engine_search = subprocess.Popen(
+                '/root/CrazyAra/' + current_binary_name,
+                # C:/Users/Martin/Documents/Uni/WS22/BA/openinvc/CrazyAra/CrazyAra.exe', #/root/CrazyAra/CrazyAra',
+                universal_newlines=True,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                bufsize=1,
+            )
+
+            ROOT = logging.getLogger()
+            ROOT.setLevel(logging.INFO)
+            put('setoption name Use_Raw_Network value true', engine_init)
+            put('\n', engine_init)
+            put('setoption name MCTS_Solver value false', engine_init)
+            put('\n', engine_init)
+            put('setoption name First_Device_ID value 1', engine_init)
+            put('\n', engine_init)
+            put('setoption name Last_Device_ID value 1', engine_init)
+            put('\n', engine_init)
+            put('setoption name Model_Directory value /root/CrazyAra/model/CrazyAra/crazyhouse/', engine_init)
+            put('\n', engine_init)
+            get(engine_init)
+            put('setoption name First_Device_ID value 1', engine_search)
+            put('\n', engine_search)
+            put('setoption name Last_Device_ID value 1', engine_search)
+            put('\n', engine_search)
+            get(engine_search)
             i = 0
             game = []
             j = 1
@@ -481,3 +480,5 @@ if __name__ == "__main__":
                                                      rtpt._get_title(), idx)
             binary_io = BinaryIO(binary_path=file_io.binary_dir+current_binary_name)
             idx += 1
+            engine_init.kill()
+            engine_search.kill()
