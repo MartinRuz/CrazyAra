@@ -442,7 +442,7 @@ if __name__ == "__main__":
         if dataset_type == "train":
             for month in range(1, 7):
                 zarr_filepaths.extend(glob.glob(
-                    'C:/Users/Martin/Documents/Uni/WS22/BA/openinvc/CrazyAra/dataset_crazyhouse/planes/train/**/*2016-0{}*.zip'.format(
+                    '/home/ml-mruzicka/planes/train/**/*2016-0{}*.zip'.format(
                         month)))
         elif dataset_type == "val":
             zarr_filepaths = glob.glob(main_config["planes_val_dir"] + "**/*.zip")
