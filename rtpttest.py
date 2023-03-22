@@ -39,11 +39,13 @@ if __name__ == "__main__":
         stdout=subprocess.PIPE,
         bufsize=1,
     )
+    print("opened")
     put('setoption name First_Device_ID value 10', engine_init)
     put('\n', engine_init)
     put('setoption name Last_Device_ID value 10', engine_init)
     put('\n', engine_init)
     get(engine_init)
+    print("initted")
     file_io = FileIO(orig_binary_name='CrazyAra', binary_dir='/root/CrazyAra/',
                      uci_variant='crazyhouse', framework='pytorch')
     binary_io = None
@@ -51,6 +53,7 @@ if __name__ == "__main__":
     zarr_filepaths = glob.glob("/home/ml-mruzicka/planes/train/**/*2016*.zip")
     idx = 0
     for filepath in zarr_filepaths:
+        print(idx)
         start_indices, planes, x_value, y_value, y_policy, _ = load_pgn_dataset(filepath, 0, True, False, 0)
         planes = planes[:50]
         for plane in planes:
