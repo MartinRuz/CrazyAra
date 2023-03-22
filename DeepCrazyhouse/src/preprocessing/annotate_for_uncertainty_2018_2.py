@@ -394,7 +394,7 @@ def change_binary_name(binary_dir: str, current_binary_name: str, process_name: 
 
 
 if __name__ == "__main__":
-    rtpt = RTPT(name_initials='MR', experiment_name='AnnotateCrazyhouse_18_2', max_iterations=18)
+    rtpt = RTPT(name_initials='MR', experiment_name='AnnotateCrazyhouse_rest', max_iterations=18)
     rtpt.start()
     current_binary_name = 'CrazyAra'
     dataset_types = ["train"]#, "val", "test", "mate_in_one"]
@@ -403,7 +403,7 @@ if __name__ == "__main__":
         if dataset_type == "train":
             for month in range(7,10):
                 zarr_filepaths.extend(glob.glob(
-                    '/home/ml-mruzicka/planes/train/**/*2018-0{}*.zip'.format(
+                    '/home/ml-mruzicka/failed/*.zip'.format(
                         month)))
                 for month in range(10, 13):
                     zarr_filepaths.extend(glob.glob(
@@ -460,6 +460,7 @@ if __name__ == "__main__":
             j = 1
             results_search = np.array([])
             results_init = np.array([])
+            print(f'filepath: {filepath}')
             start_indices, planes, x_value, y_value, y_policy, _ = load_pgn_dataset(filepath, 0, True, False, 0)
             for plane in planes:
                 game.append(planes_to_board(planes=plane))
