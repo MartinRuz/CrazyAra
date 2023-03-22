@@ -57,7 +57,7 @@ if __name__ == "__main__":
         start_indices, planes, x_value, y_value, y_policy, _ = load_pgn_dataset(filepath, 0, True, False, 0)
         planes = planes[:50]
         for plane in planes:
-            eval_search, eval_init = analyze_fen(planes_to_board(planes=plane))
+            eval_search, eval_init = analyze_fen([planes_to_board(planes=plane)])
         rtpt.step()
         current_binary_name = change_binary_name(file_io.binary_dir, current_binary_name,
                                                  rtpt._get_title(), idx)
