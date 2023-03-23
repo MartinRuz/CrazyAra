@@ -399,7 +399,7 @@ if __name__ == "__main__":
         dummy.extend(glob.glob(
             '/home/ml-mruzicka/failed/*2017-0{}*.zip'.format(
                 month)))
-    for month in range(10, 13):
+    for month in range(11, 13):
         dummy.extend(glob.glob(
             '/home/ml-mruzicka/failed/*2017-{}*.zip'.format(
                 month)))
@@ -415,7 +415,7 @@ if __name__ == "__main__":
                 zarr_filepaths.extend(glob.glob(
                     '/home/ml-mruzicka/failed/*2017-0{}*.zip'.format(
                         month)))
-            for month in range(10, 13):
+            for month in range(11, 13):
                 zarr_filepaths.extend(glob.glob(
                     '/home/ml-mruzicka/failed/*2017-{}*.zip'.format(
                         month)))
