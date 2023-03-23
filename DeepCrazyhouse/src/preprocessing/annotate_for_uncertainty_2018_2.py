@@ -418,6 +418,7 @@ if __name__ == "__main__":
             file_io = FileIO(orig_binary_name=current_binary_name, binary_dir='/root/CrazyAra/',
                              uci_variant='crazyhouse', framework='pytorch')
             binary_io = None
+            print(f'filepath: {filepath}')
             engine_init = subprocess.Popen(
                 '/root/CrazyAra/' + current_binary_name,
                 # C:/Users/Martin/Documents/Uni/WS22/BA/openinvc/CrazyAra/CrazyAra.exe', #root/CrazyAra/CrazyAra',
@@ -458,7 +459,6 @@ if __name__ == "__main__":
             j = 1
             results_search = np.array([])
             results_init = np.array([])
-            print(f'filepath: {filepath}')
             start_indices, planes, x_value, y_value, y_policy, _ = load_pgn_dataset(filepath, 0, True, False, 0)
             for plane in planes:
                 game.append(planes_to_board(planes=plane))
