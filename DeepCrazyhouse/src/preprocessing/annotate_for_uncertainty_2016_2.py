@@ -471,6 +471,7 @@ if __name__ == "__main__":
             results_search = np.array([])
             results_init = np.array([])
             start_indices, planes, x_value, y_value, y_policy, _ = load_pgn_dataset(filepath, 0, True, False, 0)
+            print(f'filepath: {filepath}')
             for plane in planes:
                 game.append(planes_to_board(planes=plane))
                 i += 1
