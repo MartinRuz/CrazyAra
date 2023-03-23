@@ -412,11 +412,11 @@ if __name__ == "__main__":
         zarr_filepaths = []
         if dataset_type == "train":
             for month in range(7, 10):
-                dummy.extend(glob.glob(
+                zarr_filepaths.extend(glob.glob(
                     '/home/ml-mruzicka/failed/*2017-0{}*.zip'.format(
                         month)))
             for month in range(10, 13):
-                dummy.extend(glob.glob(
+                zarr_filepaths.extend(glob.glob(
                     '/home/ml-mruzicka/failed/*2017-{}*.zip'.format(
                         month)))
         elif dataset_type == "val":
