@@ -404,7 +404,7 @@ if __name__ == "__main__":
             '/home/ml-mruzicka/failed/*2018-{}*.zip'.format(
                 month)))
     max_iter = len(dummy)
-    rtpt = RTPT(name_initials='MR', experiment_name='AnnotateCrazyhouse_rest', max_iterations=max_iter)
+    rtpt = RTPT(name_initials='MR', experiment_name='AnnotateCrazyhouse_18_rest', max_iterations=max_iter)
     rtpt.start()
     current_binary_name = 'CrazyAra'
     dataset_types = ["train"]#, "val", "test", "mate_in_one"]
@@ -413,11 +413,11 @@ if __name__ == "__main__":
         if dataset_type == "train":
             for month in range(7, 10):
                 zarr_filepaths.extend(glob.glob(
-                    '/home/ml-mruzicka/failed/*2016-0{}*.zip'.format(
+                    '/home/ml-mruzicka/failed/*2018-0{}*.zip'.format(
                         month)))
             for month in range(10, 13):
                 zarr_filepaths.extend(glob.glob(
-                    '/home/ml-mruzicka/failed/*2016-{}*.zip'.format(
+                    '/home/ml-mruzicka/failed/*2018-{}*.zip'.format(
                         month)))
         elif dataset_type == "val":
             zarr_filepaths = glob.glob(main_config["planes_val_dir"] + "**/*.zip")
