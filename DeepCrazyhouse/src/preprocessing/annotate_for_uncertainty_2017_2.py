@@ -415,6 +415,7 @@ if __name__ == "__main__":
             zarr_filepaths = glob.glob(main_config["planes_mate_in_one_dir"] + "**/*.zip")
         idx = 0
         for filepath in zarr_filepaths:
+            print(f'filepath: {filepath}')
             file_io = FileIO(orig_binary_name=current_binary_name, binary_dir='/root/CrazyAra/',
                              uci_variant='crazyhouse', framework='pytorch')
             binary_io = None
