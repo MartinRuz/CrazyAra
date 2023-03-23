@@ -401,7 +401,7 @@ if __name__ == "__main__":
                 month)))
     for month in range(10, 13):
         dummy.extend(glob.glob(
-            '/home/ml-mruzicka/planes/train/**/*2016-0{}*.zip'.format(
+            '/home/ml-mruzicka/planes/train/**/*2016-{}*.zip'.format(
                 month)))
     max_iter = len(dummy)
     rtpt = RTPT(name_initials='MR', experiment_name='AnnotateCrazyhouse_16_2', max_iterations=max_iter)
