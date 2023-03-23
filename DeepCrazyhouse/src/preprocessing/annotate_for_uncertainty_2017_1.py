@@ -395,7 +395,7 @@ def change_binary_name(binary_dir: str, current_binary_name: str, process_name: 
 
 if __name__ == "__main__":
     dummy = []
-    for month in range(7, 10):
+    for month in range(1, 7):
         dummy.extend(glob.glob(
             '/home/ml-mruzicka/planes/train/**/*2017-0{}*.zip'.format(
                 month)))
@@ -463,6 +463,7 @@ if __name__ == "__main__":
             results_search = np.array([])
             results_init = np.array([])
             start_indices, planes, x_value, y_value, y_policy, _ = load_pgn_dataset(filepath, 0, True, False, 0)
+            print(f'filepath: {filepath}')
             for plane in planes:
                 game.append(planes_to_board(planes=plane))
                 i += 1
