@@ -395,7 +395,7 @@ def change_binary_name(binary_dir: str, current_binary_name: str, process_name: 
 
 if __name__ == "__main__":
     dummy = []
-    for month in range(7, 10):
+    for month in range(1, 7):
         dummy.extend(glob.glob(
             '/home/ml-mruzicka/planes/train/**/*2018-0{}*.zip'.format(
                 month)))
