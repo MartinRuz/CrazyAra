@@ -397,10 +397,10 @@ if __name__ == "__main__":
     dummy = []
     for month in range(1, 7):
         dummy.extend(glob.glob(
-            '/home/ml-mruzicka/planes/train/**/*2018-0{}*.zip'.format(
+            '/home/ml-mruzicka/failed/*2018-0{}*.zip'.format(
                 month)))
     max_iter = len(dummy)
-    rtpt = RTPT(name_initials='MR', experiment_name='AnnotateCrazyhouse_18_1', max_iterations=max_iter)
+    rtpt = RTPT(name_initials='MR', experiment_name='AnnotateCrazyhouse_18_1_rest', max_iterations=max_iter)
     rtpt.start()
     current_binary_name = 'CrazyAra'
     dataset_types = ["train"]#, "val", "test", "mate_in_one"]
@@ -409,7 +409,7 @@ if __name__ == "__main__":
         if dataset_type == "train":
             for month in range(1, 7):
                 zarr_filepaths.extend(glob.glob(
-                    '/home/ml-mruzicka/planes/train/**/*2018-0{}*.zip'.format(
+                    '/home/ml-mruzicka/failed/*2018-0{}*.zip'.format(
                         month)))
         elif dataset_type == "val":
             zarr_filepaths = glob.glob(main_config["planes_val_dir"] + "**/*.zip")
@@ -463,6 +463,7 @@ if __name__ == "__main__":
             results_search = np.array([])
             results_init = np.array([])
             start_indices, planes, x_value, y_value, y_policy, _ = load_pgn_dataset(filepath, 0, True, False, 0)
+            print(f'filepath: {filepath}')
             for plane in planes:
                 game.append(planes_to_board(planes=plane))
                 i += 1
