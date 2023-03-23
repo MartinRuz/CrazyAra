@@ -395,8 +395,14 @@ def change_binary_name(binary_dir: str, current_binary_name: str, process_name: 
 
 if __name__ == "__main__":
     dummy = []
-    dummy.extend(glob.glob(
-        '/home/ml-mruzicka/failed/*2017*.zip'))
+    for month in range(7, 10):
+        dummy.extend(glob.glob(
+            '/home/ml-mruzicka/failed/*2017-0{}*.zip'.format(
+                month)))
+    for month in range(10, 13):
+        dummy.extend(glob.glob(
+            '/home/ml-mruzicka/failed/*2017-{}*.zip'.format(
+                month)))
     max_iter = len(dummy)
     rtpt = RTPT(name_initials='MR', experiment_name='AnnotateCrazyhouse_17_rest', max_iterations=max_iter)
     rtpt.start()
@@ -405,8 +411,14 @@ if __name__ == "__main__":
     for dataset_type in dataset_types:
         zarr_filepaths = []
         if dataset_type == "train":
-            zarr_filepaths.extend(glob.glob(
-        '/home/ml-mruzicka/failed/*2017*.zip'))
+            for month in range(7, 10):
+                dummy.extend(glob.glob(
+                    '/home/ml-mruzicka/failed/*2017-0{}*.zip'.format(
+                        month)))
+            for month in range(10, 13):
+                dummy.extend(glob.glob(
+                    '/home/ml-mruzicka/failed/*2017-{}*.zip'.format(
+                        month)))
         elif dataset_type == "val":
             zarr_filepaths = glob.glob(main_config["planes_val_dir"] + "**/*.zip")
         elif dataset_type == "test":
@@ -460,6 +472,7 @@ if __name__ == "__main__":
             results_search = np.array([])
             results_init = np.array([])
             start_indices, planes, x_value, y_value, y_policy, _ = load_pgn_dataset(filepath, 0, True, False, 0)
+            print(f'filepath: {filepath}')
             for plane in planes:
                 game.append(planes_to_board(planes=plane))
                 i += 1
