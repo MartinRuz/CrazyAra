@@ -394,7 +394,13 @@ def change_binary_name(binary_dir: str, current_binary_name: str, process_name: 
 
 
 if __name__ == "__main__":
-    rtpt = RTPT(name_initials='MR', experiment_name='AnnotateCrazyhouse_16_1', max_iterations=86)
+    dummy = []
+    for month in range(1, 7):
+        dummy.extend(glob.glob(
+            '/home/ml-mruzicka/planes/train/**/*2016-0{}*.zip'.format(
+                month)))
+    max_iter = len(dummy)
+    rtpt = RTPT(name_initials='MR', experiment_name='AnnotateCrazyhouse_16_1', max_iterations=max_iter)
     rtpt.start()
     current_binary_name = 'CrazyAra'
     dataset_types = ["train"]#, "val", "test", "mate_in_one"]

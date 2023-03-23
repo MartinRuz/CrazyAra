@@ -394,7 +394,11 @@ def change_binary_name(binary_dir: str, current_binary_name: str, process_name: 
 
 
 if __name__ == "__main__":
-    rtpt = RTPT(name_initials='MR', experiment_name='AnnotateCrazyhouse_rest', max_iterations=18)
+    dummy = []
+    dummy.extend(glob.glob(
+        '/home/ml-mruzicka/failed/*2018*.zip'))
+    max_iter = len(dummy)
+    rtpt = RTPT(name_initials='MR', experiment_name='AnnotateCrazyhouse_rest', max_iterations=max_iter)
     rtpt.start()
     current_binary_name = 'CrazyAra'
     dataset_types = ["train"]#, "val", "test", "mate_in_one"]
