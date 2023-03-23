@@ -401,14 +401,8 @@ if __name__ == "__main__":
     for dataset_type in dataset_types:
         zarr_filepaths = []
         if dataset_type == "train":
-            for month in range(7,10):
-                zarr_filepaths.extend(glob.glob(
-                    '/home/ml-mruzicka/failed/*.zip'.format(
-                        month)))
-                for month in range(10, 13):
-                    zarr_filepaths.extend(glob.glob(
-                        '/home/ml-mruzicka/planes/train/**/*2018-{}*.zip'.format(
-                            month)))
+            zarr_filepaths.extend(glob.glob(
+                '/home/ml-mruzicka/failed/*2018*.zip'))
         elif dataset_type == "val":
             zarr_filepaths = glob.glob(main_config["planes_val_dir"] + "**/*.zip")
         elif dataset_type == "test":
