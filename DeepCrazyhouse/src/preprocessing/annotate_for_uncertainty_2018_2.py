@@ -396,7 +396,7 @@ def change_binary_name(binary_dir: str, current_binary_name: str, process_name: 
 if __name__ == "__main__":
     dummy = []
     dummy.extend(glob.glob(
-        '/home/ml-mruzicka/failed/*2016-06*.zip'))
+        '/home/ml-mruzicka/failed/*2017-04*.zip'))
     max_iter = len(dummy)
     rtpt = RTPT(name_initials='MR', experiment_name='AnnotateCrazyhouse_16_6', max_iterations=max_iter)
     rtpt.start()
@@ -406,7 +406,7 @@ if __name__ == "__main__":
         zarr_filepaths = []
         if dataset_type == "train":
             zarr_filepaths.extend(glob.glob(
-                '/home/ml-mruzicka/failed/*2016-06*.zip'))
+                '/home/ml-mruzicka/failed/*2017-04*.zip'))
         elif dataset_type == "val":
             zarr_filepaths = glob.glob(main_config["planes_val_dir"] + "**/*.zip")
         elif dataset_type == "test":
