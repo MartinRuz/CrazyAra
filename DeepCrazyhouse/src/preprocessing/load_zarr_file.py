@@ -16,8 +16,11 @@ def load_and_compare():
     start_indices, x, y_value, y_policy, plys_to_end, y_best_move_q = get_numpy_arrays(zarr_file)
     eval_init = np.array(zarr_file["eval_init"])
     eval_search = np.array(zarr_file["eval_search"])
-    print(start_indices)
-    print(eval_search[:50])
+    for i in range(0,61):
+        plane = planes_to_board(planes=x[i])
+        fen = plane.fen()
+        print(fen)
+        print(eval_search[i])
 
 
 
