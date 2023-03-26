@@ -29,29 +29,7 @@ def load_and_compare():
     #print(eval_search[55386:])
     plane = planes_to_board(planes=x[len(x)-3])
     fen = plane.fen()
-    #print(fen)
-    #print(start_indices[-2])
-    s = eval_search
-    init = eval_init
-    duplicates = []
-    fens = []
-    init_duplicates = []
-
-    for i in range(len(s)-1):
-        if s[i] == s[i+1]:
-            duplicates = np.append(duplicates, s[i])
-            #fens.append(planes_to_board(x[i]).fen())
-            #fens.append(planes_to_board(x[i+1]).fen())
-
-    for i in range(len(init) - 1):
-        if init[i] == init[i + 1]:
-            init_duplicates.append(init[i])
-            init_duplicates.append(init[i+1])
-            fens.append(planes_to_board(x[i]).fen())
-            fens.append(planes_to_board(x[i+1]).fen())
-    #print(duplicates)
-    print(init_duplicates)
-    print(fens)
+    print(eval_search[:50])
 
 
 
