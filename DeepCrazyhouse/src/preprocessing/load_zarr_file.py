@@ -1,0 +1,59 @@
+import glob
+
+import numpy as np
+import zarr
+
+from DeepCrazyhouse.src.domain.util import get_numpy_arrays
+from DeepCrazyhouse.src.preprocessing.annotate_for_uncertainty_2016_1 import planes_to_board
+
+
+def load_and_compare():
+    zarr_filepath = []
+    zarr_filepath = '/home/ml-mruzicka/modifiedplanes/train/2018-09-27-10-43-39/lichess_db_crazyhouse_rated_2018-07_9.zip'
+    print(zarr_filepath)
+    store = zarr.ZipStore(zarr_filepath, mode="r")
+    zarr_file = zarr.group(store=store, overwrite=False)
+    start_indices, x, y_value, y_policy, plys_to_end, y_best_move_q = get_numpy_arrays(zarr_file)
+    eval_init = np.array(zarr_file["eval_init"])
+    eval_search = np.array(zarr_file["eval_search"])
+    #print(eval_init[len(eval_init)-5])
+    #print(eval_init[len(eval_init)-4])
+    #print(eval_init[len(eval_init)-3])
+    #print(eval_search[len(eval_search) - 3])
+    #print(eval_init[len(eval_init)-2])
+    #print(eval_search[len(eval_search) - 2])
+    #print(eval_init[len(eval_init)-1])
+    #print(eval_search[len(eval_search) - 1])
+    #print(x.shape)
+    #print(eval_init[55386:])
+    #print(eval_search[55386:])
+    plane = planes_to_board(planes=x[len(x)-3])
+    fen = plane.fen()
+    #print(fen)
+    #print(start_indices[-2])
+    s = eval_search
+    init = eval_init
+    duplicates = []
+    fens = []
+    init_duplicates = []
+
+    for i in range(len(s)-1):
+        if s[i] == s[i+1]:
+            duplicates = np.append(duplicates, s[i])
+            #fens.append(planes_to_board(x[i]).fen())
+            #fens.append(planes_to_board(x[i+1]).fen())
+
+    for i in range(len(init) - 1):
+        if init[i] == init[i + 1]:
+            init_duplicates.append(init[i])
+            init_duplicates.append(init[i+1])
+            fens.append(planes_to_board(x[i]).fen())
+            fens.append(planes_to_board(x[i+1]).fen())
+    #print(duplicates)
+    print(init_duplicates)
+    print(fens)
+
+
+
+if __name__ == "__main__":
+    load_and_compare()
