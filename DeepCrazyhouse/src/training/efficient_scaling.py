@@ -54,8 +54,8 @@ tc.device_id = 1
 tc.sparse_policy_label = True
 tc.batch_size = int(1024 / div_factor)
 tc.batch_steps = 100 * div_factor  # this defines how often a new checkpoint will be saved and the metrics evaluated
-tc.max_lr = 0.1 / div_factor
-tc.min_lr = 0.001 / div_factor  # 0.00001
+tc.max_lr = 0.07 / div_factor  # 0.1/div_factor
+tc.min_lr = 0.00001  # 0.001 / div_factor
 
 mode = main_config["mode"]
 ctx = get_context(tc.context, tc.device_id)
@@ -86,7 +86,7 @@ print("train_config:", str(tc))
 
 
 def run_training(alpha, queue):
-    _, x_val, yv_val, yp_val, plys_to_end, _ = load_pgn_dataset(dataset_type='val', part_id=0,
+    _, x_val, yv_val, yp_val, plys_to_end, _, eval_init, eval_search = load_pgn_dataset(dataset_type='val', part_id=0,
                                                                                         verbose=True,
                                                                                         normalize=tc.normalize)
     if tc.discount != 1:
@@ -94,10 +94,12 @@ def run_training(alpha, queue):
 
     if tc.select_policy_from_plane:
         val_iter = mx.io.NDArrayIter({'data': x_val}, {'value_label': yv_val,
-                                                       'policy_label': np.array(FLAT_PLANE_IDX)[yp_val.argmax(axis=1)]},
+                                                       'policy_label': np.array(FLAT_PLANE_IDX)[yp_val.argmax(axis=1)],
+                                                       'uncertainty_label': np.array(eval_init,eval_search)},
                                      tc.batch_size)
     else:
-        val_iter = mx.io.NDArrayIter({'data': x_val}, {'value_label': yv_val, 'policy_label': yp_val.argmax(axis=1)},
+        val_iter = mx.io.NDArrayIter({'data': x_val}, {'value_label': yv_val, 'policy_label': yp_val.argmax(axis=1),
+                                                       'uncertainty_label': np.array(eval_init,eval_search)},
                                      tc.batch_size)
 
     tc.nb_parts = len(glob.glob(main_config['planes_train_dir'] + '**/*'))
@@ -137,7 +139,7 @@ def run_training(alpha, queue):
                                    kernels=kernels, se_types=se_types)
 
     # create a trainable module on compute context
-    model = mx.mod.Module(symbol=symbol, context=ctx, label_names=['value_label', 'policy_label'])
+    model = mx.mod.Module(symbol=symbol, context=ctx, label_names=['value_label', 'policy_label', 'uncertainty_label'])
     model.bind(for_training=True,
                data_shapes=[('data', (tc.batch_size, input_shape[0], input_shape[1], input_shape[2]))],
                label_shapes=val_iter.provide_label)
@@ -150,7 +152,8 @@ def run_training(alpha, queue):
         metric.create(acc_sign, name='value_acc_sign', output_names=['value_output'],
                       label_names=['value_label']),
         metric.Accuracy(axis=1, name='policy_acc', output_names=['policy_output'],
-                        label_names=['policy_label'])
+                        label_names=['policy_label']),
+        metric.MSE(name='uncertainty_loss', output_names=['value_output'], label_names=['uncertainty_label'])
     ]
 
     to.metrics = metrics_mxnet
@@ -163,8 +166,10 @@ def run_training(alpha, queue):
     new_row = {'alpha': alpha, 'beta': beta, 'depth': depth, 'channels': channels, 'k_steps_best': k_steps_best,
                'val_loss': val_metric_values_best['loss'], 'val_value_loss': val_metric_values_best['value_loss'],
                'val_policy_loss': val_metric_values_best['policy_loss'],
+               'val_uncertainty_loss': val_metric_values_best['uncertainty_loss'],
                'val_policy_acc': val_metric_values_best['policy_acc'],
-               'val_value_acc': val_metric_values_best['value_acc_sign']}
+               'val_value_acc': val_metric_values_best['value_acc_sign'],
+               'val_uncertainty_acc': val_metric_values_best['uncertainty_acc_sign']}
 
     queue.put(new_row)
     print(new_row)

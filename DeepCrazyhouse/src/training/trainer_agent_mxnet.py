@@ -163,6 +163,10 @@ def value_to_wdl_label(y_value):
 def prepare_plys_label(plys_to_end_label):
     return np.clip(plys_to_end_label, 0, 100) / 100
 
+def uncertainty_label(eval_init, eval_search):
+    return 1 #todo
+
+
 
 class TrainerAgentMXNET:  # Probably needs refactoring
     """Main training loop"""
