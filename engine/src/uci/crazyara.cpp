@@ -690,7 +690,7 @@ void CrazyAra::init_search_settings()
     searchSettings.virtualLoss = Options["Centi_Virtual_Loss"] / 100.0f;
     searchSettings.randomMoveFactor = Options["Centi_Random_Move_Factor"]  / 100.0f;
     searchSettings.allowEarlyStopping = Options["Allow_Early_Stopping"];
-    searchSettings.useVariance = Options["Use_Variance"] == "true";
+    searchSettings.useVariance = Options["Use_Variance"];
     useRawNetwork = Options["Use_Raw_Network"];
 #ifdef SUPPORT960
     is960 = Options["UCI_Chess960"];

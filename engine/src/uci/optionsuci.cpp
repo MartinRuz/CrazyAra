@@ -191,7 +191,7 @@ void OptionsUCI::init(OptionsMap &o)
     o["UCI_Variant"]                   << Option(StateConstants::DEFAULT_UCI_VARIANT().c_str(), {StateConstants::DEFAULT_UCI_VARIANT().c_str(), StateConstants::DEFAULT_UCI_VARIANT().c_str()});
 #endif
     o["Use_Raw_Network"]               << Option(false);
-    o["Use_Variance"]                  << Option("true", { "true", "false" });
+    o["Use_Variance"]                  << Option(true);
     // additional UCI-Options for RL only
 #ifdef USE_RL
     o["Centi_Node_Random_Factor"]      << Option(10, 0, 100);

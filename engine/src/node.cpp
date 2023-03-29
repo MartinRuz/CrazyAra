@@ -527,6 +527,7 @@ void Node::reserve_full_memory()
     d->virtualLossCounter.reserve(numberChildNodes);
     d->nodeTypes.reserve(numberChildNodes);
     d->stdDev.reserve(numberChildNodes);
+    d->powerSumAvg.reserve(numberChildNodes);
 }
 
 void Node::increment_no_visit_idx()
@@ -1196,7 +1197,7 @@ float get_variance_cput(float visits, const SearchSettings* searchSettings)
 }
 
 
-void Node::print_debug_file(const StateObj* state, const vector<size_t>& customOrdering, const SearchSettings* searchSettings, DynamicVector<float> u_term)
+/*void Node::print_debug_file(const StateObj* state, const vector<size_t>& customOrdering, const SearchSettings* searchSettings, DynamicVector<float> u_term)
 {
     const string header = "  #  | Move  |    first variance    |  second variance |  final variance  |  visits  |   min selection    |    max selection   |   final term   |   policy   |    ";
     const string filler = "-----+-------+----------------------+------------------+------------------+----------+--------------------+--------------------+----------------+------------+";
@@ -1222,7 +1223,7 @@ void Node::print_debug_file(const StateObj* state, const vector<size_t>& customO
     }
     outfile.close();
 }
-
+*/
 void Node::print_node_statistics(const StateObj* state, const vector<size_t>& customOrdering) const
 {
     const string header = "  #  | Move  |    Visits    |  Policy   |  Q-values  |  std  |   CP    |    Type    ";
