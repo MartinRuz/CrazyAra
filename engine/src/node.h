@@ -201,136 +201,31 @@ public:
             // set new Q-value based on return
             // (the initialization of the Q-value was by Q_INIT which we don't want to recover.)
             d->qValues[childIdx] = value;
-            //TESTd->mean[childIdx] = value;
             d->powerSumAvg[childIdx] = value * value;
-            if (childIdx == 0 && numberParentNodes == 0 && d != nullptr) {
-                //cout << "if war true " << d->idx[0] << value << endl;
-            }
         }
         else {
-            //TESTcout << "revert and update bei " << childIdx << endl;
             // revert virtual loss and update the Q-value
             assert(d->childNumberVisits[childIdx] != 0);
-            //const double realVisitsUpdated = get_real_visits(childIdx) + 1;// d->childNumberVisits[childIdx]; // 
-            double delta = value - d->qValues[childIdx];
-            d->qValues[childIdx] = (double(d->qValues[childIdx]) * realVisitsUpdated + virtualLoss + value) / realVisitsUpdated; // d->childNumberVisits[childIdx];
-            //d->mean[childIdx] += (double(value - d->mean[childIdx]) / realVisitsUpdated);
-            //TESTdouble delta2 = value - d->qValues[childIdx];
-            //TESTd->welford_m2[childIdx] += delta * delta2;
+            d->qValues[childIdx] = (double(d->qValues[childIdx]) * realVisitsUpdated + virtualLoss + value) / realVisitsUpdated;
             // update std measurement using formula from:
             // https://subluminal.wordpress.com/2008/07/31/running-standard-deviations/#more-15
-            // TODO: consider virtualLoss != 1 => childNumberVisits[childIdx] is still rescaled by the virtualLoss, which we don't want for the sumPowerAvg
             // so we need (d->childNumberVisits[childIdx] - size_t(virtualLoss) + 1)
             d->powerSumAvg[childIdx] = (d->powerSumAvg[childIdx] * d->childNumberVisits[childIdx] - virtualLoss * virtualLoss) / (d->childNumberVisits[childIdx] - virtualLoss);
-            d->powerSumAvg[childIdx] += (value * value - d->powerSumAvg[childIdx]) / realVisitsUpdated;
+            d->powerSumAvg[childIdx] += (value * value - virtualLoss*d->powerSumAvg[childIdx]) / realVisitsUpdated;
             if (d->childNumberVisits[childIdx] > 1) {
-                //TESTd->welford_samplevar[childIdx] = sqrt(d->welford_m2[childIdx] / (realVisitsUpdated - 1));
-                //TESTd->welford_var[childIdx] = d->welford_m2[childIdx] / realVisitsUpdated;
-                d->stdDev[childIdx] = d->childNumberVisits[childIdx] * (std::fmaxf(0.0, (d->powerSumAvg[childIdx] - d->qValues[childIdx] * d->qValues[childIdx]))) / (realVisitsUpdated-1);
-                //d->stdDev[childIdx] = sqrt((std::log(realVisitsSum)/realVisitsUpdated) * std::fminf(0.25, d->powerSumAvg[childIdx] - d->qValues[childIdx] * d->qValues[childIdx] + sqrt(2 * std::log(realVisitsSum) / realVisitsUpdated)));
-                
+                d->stdDev[childIdx] = d->childNumberVisits[childIdx] * (std::fmaxf(0.0, (d->powerSumAvg[childIdx] - d->qValues[childIdx] * d->qValues[childIdx]))) / (d->childNumberVisits[childIdx] - 1);
             }
-            /*if (childIdx == 0 && numberParentNodes == 0 && d != nullptr) {
-                //cout << d->idx[0];
-                if (0.000001 < d->vars[0][d->idx[0]] && d->vars[0][d->idx[0]] <= 1) {
-                    cout << "vars wollte überschreiben mit idx=" << d->idx[0] <<" und vorherigem wert " << d->vars[0][d->idx[0]] << endl;   
-                    d->vars[0][d->idx[0]] = d->childNumberVisits[childIdx] * (std::fmaxf(0.0, (d->powerSumAvg[childIdx] - d->qValues[childIdx] * d->qValues[childIdx]))) / realVisitsUpdated;
-                }
-                else {
-                    cout << "schreib nach vars" << endl;
-                    d->vars[0][d->idx[0]] = d->childNumberVisits[childIdx] * (std::fmaxf(0.0, (d->powerSumAvg[childIdx] - d->qValues[childIdx] * d->qValues[childIdx]))) / realVisitsUpdated;
-                }//cout << "value: " << value << " qvalue: " << d->qValues[0] << endl;
-                /*if (d->welfords[0][d->idx[0]] != -2) {
-                    cout << "welfords wollte überschreiben mit idx=" << d->idx[0] << endl;
-                }
-                else {
-                    d->welfords[0][d->idx[0]] = d->welford_var[0];
-                }
-                if (d->welfords_samples[0][d->idx[0]] != -2) {
-                    cout << "vars wollte überschreiben mit idx=" << d->idx[0] << endl;
-                }
-                else {
-                    d->welfords_samples[0][d->idx[0]] = d->welford_samplevar[0];
-                }
-                if (d->values[0][d->idx[0]] != -2) {
-                    cout << "values wollte überschreiben mit idx=" << d->idx[0] << endl;
-                }
-                else {
-                    d->values[0][d->idx[0]] = value;
-                }
-                //d->all_q[d->idx[0]] = d->qValues[0];
-                //d->means[d->idx[0]] = d->mean[0];
-                //d->psas[d->idx[0]] = d->powerSumAvg[childIdx];
-                //d->vars_ownmean[d->idx[0]] = d->stdDev[0][0];*/
-              //  d->idx[0] += 1;
-            //}
-
-            /*
-            d->powerSumAvg[childIdx] += (value * value - d->powerSumAvg[childIdx]) / d->childNumberVisits[childIdx];
-            if (d->childNumberVisits[childIdx] > 1) {
-                 double utilitySq = d->qValues[childIdx] * d->qValues[childIdx] / ((d->childNumberVisits[childIdx] + virtualLoss) * (d->childNumberVisits[childIdx] + virtualLoss));
-                 double tmp = sqrt(std::max(0.0, ((utilitySq + 0.16) * 2 + d->powerSumAvg[childIdx] * (d->childNumberVisits[childIdx] + virtualLoss) / (2 + d->childNumberVisits[childIdx] + virtualLoss - 1)) - utilitySq));
-                 d->stdDev[childIdx] = 1 + 0.85 * (tmp / 0.4 - 1);
-            }*/
+            
            
             assert(!isnan(d->qValues[childIdx]));
             assert(!isnan(d->stdDev[childIdx]));
         }
 
-        /*if (numberParentNodes == 0 && childIdx == 0 && d != nullptr) {
-            ofstream outfile;
-            outfile.open("welford.txt", std::ios_base::app);
-            outfile << "new iteration mit idx = " << d->idx[0] << " wobei childNumberVisits " << d->childNumberVisits[childIdx] << " und realvisits " << get_real_visits() << endl;
-            for (int idx = 0; idx < d->idx[0]; idx++) {
-                outfile << setw(15) << d->vars[0][idx] << ", ";
-            }
-            outfile << endl; for (int idx = 0; idx < d->idx[0]; idx++) {
-                outfile << setw(15) << d->welfords[0][idx] << ", ";
-            }
-            outfile << endl;
-            for (int idx = 0; idx < d->idx[0]; idx++) {
-                outfile << setw(15) << d->welfords_samples[0][idx] << ", ";
-            }
-            outfile << endl;
-            /*for (int idx = 0; idx < d->idx[0]; idx++) {
-                outfile << setw(10) << d->vars_ownmean[idx] << ", ";
-            }
-            outfile << endl;
-            *//*for (int idx = 0; idx < d->idx[0]; idx++) {
-                outfile << setw(15) << d->values[0][idx] << ", ";
-            }
-            outfile << endl;
-            /*for (int idx = 0; idx < d->idx[0]; idx++) {
-                outfile << setw(10) << d->all_q[idx] << ", ";
-            }
-            outfile << endl; 
-            for (int idx = 0; idx < d->idx[0]; idx++) {
-                outfile << setw(10) << d->means[idx] << ", ";
-            }
-            outfile << endl;
-            for (int idx = 0; idx < d->idx[0]; idx++) {
-                outfile << setw(10) << d->psas[idx] << ", ";
-            }
-            outfile << endl;*/
-            /*outfile << endl;
-            outfile.close();
-        }*/
-
-        /*if (d->childNumberVisits[childIdx] == 1) {
-            d->stdev_one[childIdx] = d->stdDev[childIdx];
-        }
-        if (d->childNumberVisits[childIdx] == 2) {
-            d->stdev_two[childIdx] = d->stdDev[childIdx];
-        }*/
-
+   
         if (virtualLoss != 1) {
             d->childNumberVisits[childIdx] -= size_t(virtualLoss) - 1;
             d->visitSum -= size_t(virtualLoss) - 1;
         }
-        /*if (numberParentNodes == 0 && childIdx == 0 && d != nullptr) {
-            store_variance_in_file(d->stdDev[0], value, d->childNumberVisits[0], d->visitSum);
-        }*/
-
         if (freeBackup) {
             ++d->freeVisits;
         }
@@ -575,18 +470,6 @@ public:
     ChildIdx get_best_q_idx() const;
 
     /**
-  * @brief get_best_q Return the highest standard deviatioon
-  * @return maximum standard deviation, 0 if no stdev was computed yet
-  */
-    float get_best_stdev() const;
-
-    /**
-  * @brief get_worst_q_idx Return the lowest standard deviation of a node that was visited at least twice (i.e. has an actual computed variance) 
-  * @return 0 if no node has computed a stdev yet, the minimum standard deviation else
-  */
-    float get_worst_stdev() const;
-
-    /**
      * @brief get_q_idx_over_thresh Returns all child node which coresponding Q-values are greater than qThresh
      * @param qThresh Threshold
      * @return vector of child indices
@@ -601,10 +484,6 @@ public:
      *  If an empty vector is given, it will use the current ordering of the child nodes (by default according to the prior policy).
      */
     void print_node_statistics(const StateObj* pos, const vector<size_t>& customOrdering) const;
-
-    void print_debug_file(const StateObj* state, const vector<size_t>& customOrdering, const SearchSettings* searchSettings, DynamicVector<float> u_term) ;
-
-    void store_variance_in_file(float stdDev, float value, int numVisits, int totalvisits);
 
     /**
      * @brief get_node_count Returns the number of nodes in the subgraph of this nodes without counting terminal simulations

@@ -31,27 +31,10 @@ void NodeData::add_empty_node()
 {
     append(childNumberVisits, 0U);
     append(qValues, Q_INIT);
-    append(mean, 0.0f);
     append(powerSumAvg, 0.0f);
     append(stdDev, 0.0f);
     append(virtualLossCounter, uint8_t(0));
     append(nodeTypes, UNSOLVED);
-    //append(stdev_one, -2.0f);
-    //append(stdev_two, -2.0f);
-    //append(min_term, 2000.0f);
-    //append(max_term, -2000.0f);
-    //TESTappend(vars[0], -2.0f);
-    //append(vars_ownmean, 0.0f);
-    //TESTappend(welfords[0], -2.0f);
-    //TESTappend(welfords_samples[0], -2.0f);
-    //append(all_q, -2.0f);
-    //TESTappend(values[0], -2.0f);
-    //TESTappend(welford_m2, 0.0f);
-    //TESTappend(welford_samplevar, 0.0f);
-    //TESTappend(welford_var, 0.0f);
-    //append(means, 0.0f);
-    //append(psas, 0.0f);
-    //TESTappend(idx, 0);
     childNodes.emplace_back(nullptr);
 }
 
@@ -66,26 +49,8 @@ void NodeData::reserve_initial_space()
     // u: exploration metric for each child node
     // (the q and u values are stacked into 1 list in order to speed-up the argmax() operation
     qValues.reserve(initSize);
-    //martin's additions
-    mean.reserve(initSize);
     stdDev.reserve(initSize);
     powerSumAvg.reserve(initSize);
-    //stdev_one.reserve(initSize);
-    //stdev_two.reserve(initSize);
-    //min_term.reserve(initSize);
-    //max_term.reserve(initSize);
-    //TESTvars.reserve(100);
-    //vars_ownmean.reserve(initSize);
-    //TESTwelfords.reserve(100);
-    //TESTwelfords_samples.reserve(100);
-    //all_q.reserve(initSize);
-    //TESTvalues.reserve(100);
-    //TESTwelford_m2.reserve(initSize);
-    //TESTwelford_samplevar.reserve(initSize);
-    //TESTwelford_var.reserve(initSize);
-    //means.reserve(initSize);
-    //psas.reserve(initSize);
-    //TESTidx.reserve(initSize);
 
     childNodes.reserve(initSize);
     virtualLossCounter.reserve(initSize);

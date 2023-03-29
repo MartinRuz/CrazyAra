@@ -89,28 +89,11 @@ struct NodeData
 {
     DynamicVector<uint32_t> childNumberVisits;
     DynamicVector<float> qValues;
-    DynamicVector<float> mean;
     DynamicVector<float> powerSumAvg;
     DynamicVector<float> stdDev;
     vector<shared_ptr<Node>> childNodes;
     DynamicVector<uint8_t> virtualLossCounter;
     DynamicVector<NodeType> nodeTypes;
-    //DynamicVector<float> stdev_one;
-    //DynamicVector<float> stdev_two;
-    //DynamicVector<float> min_term;
-    //DynamicVector<float> max_term;
-    //TESTDynamicVector<DynamicVector<float>> vars;
-    //DynamicVector<float> vars_ownmean;
-    //TESTDynamicVector<DynamicVector<float>> welfords;
-    //TESTDynamicVector<DynamicVector<float>> welfords_samples;
-    //DynamicVector<float> all_q;
-    //TESTDynamicVector<DynamicVector<float>> values;
-    //TESTDynamicVector<float> welford_m2;
-    //TESTDynamicVector<float> welford_samplevar;
-    //TESTDynamicVector<float> welford_var;
-    //DynamicVector<float> means;
-    //DynamicVector<float> psas;
-    //TESTDynamicVector<int> idx;
 
     uint32_t freeVisits;
     uint32_t visitSum;

@@ -95,7 +95,6 @@ void CrazyAra::uci_loop(int argc, char *argv[])
 
     // this is debug vector which can contain uci commands which will be automatically processed when the executable is launched
     vector<string> commands = {
-        //"isready", "benchmark 1000"
     };
 
     do {
@@ -190,8 +189,6 @@ void CrazyAra::go(StateObj* state, istringstream &is,  EvalInfo& evalInfo)
         mctsAgent->set_search_settings(state, &searchLimits, &evalInfo);
         mctsAgent->lock(); // lock() mctsAgent to avoid calling stop() immediatly
         mainSearchThread = thread(run_agent_thread, mctsAgent.get());
-        //const vector<size_t> customOrdering = sort_permutation(evalInfo->policyProbSmall, std::greater<float>());
-        //rootNode->print_debug_file(state, customOrdering, searchSettings);
     }
 }
 
