@@ -394,7 +394,7 @@ def change_binary_name(binary_dir: str, current_binary_name: str, process_name: 
 
 
 if __name__ == "__main__":
-    rtpt = RTPT(name_initials='MR', experiment_name='AnnotateCrazyhouse_17', max_iterations=196)
+    rtpt = RTPT(name_initials='MR', experiment_name='AnnotateCrazyhouse_rest', max_iterations=3)
     rtpt.start()
     engine_init = subprocess.Popen(
         '/root/CrazyAra/CrazyAra',#C:/Users/Martin/Documents/Uni/WS22/BA/openinvc/CrazyAra/CrazyAra.exe', #root/CrazyAra/CrazyAra',
@@ -424,25 +424,25 @@ if __name__ == "__main__":
     put('setoption name Model_Directory value /root/CrazyAra/model/CrazyAra/crazyhouse/', engine_init)
     put('\n', engine_init)
     get(engine_init)
-    put('setoption name First_Device_ID value 10', engine_search)
+    put('setoption name First_Device_ID value 8', engine_search)
     put('\n', engine_search)
-    put('setoption name Last_Device_ID value 10', engine_search)
+    put('setoption name Last_Device_ID value 8', engine_search)
     put('\n', engine_search)
     get(engine_search)
     file_io = FileIO(orig_binary_name='CrazyAra', binary_dir='/root/CrazyAra/',
                      uci_variant='crazyhouse', framework='pytorch')
     binary_io = None
     current_binary_name = 'CrazyAra'
-    dataset_types = ["train"]#, "val", "test", "mate_in_one"]
+    dataset_types = ["val", "test", "mate_in_one"]
     for dataset_type in dataset_types:
         if dataset_type == "train":
             zarr_filepaths = glob.glob("/home/ml-mruzicka/planes/train/**/*2016*.zip")
         elif dataset_type == "val":
-            zarr_filepaths = glob.glob(main_config["planes_val_dir"] + "**/*.zip")
+            zarr_filepaths = glob.glob("/home/ml-mruzicka/planes/val/**/*.zip")
         elif dataset_type == "test":
-            zarr_filepaths = glob.glob(main_config["planes_test_dir"] + "**/*.zip")
+            zarr_filepaths = glob.glob("/home/ml-mruzicka/planes/test/**/*.zip")
         elif dataset_type == "mate_in_one":
-            zarr_filepaths = glob.glob(main_config["planes_mate_in_one_dir"] + "**/*.zip")
+            zarr_filepaths = glob.glob("/home/ml-mruzicka/planes/mate_in_one/**/*.zip")
         idx = 0
         for filepath in zarr_filepaths:
             i = 0
