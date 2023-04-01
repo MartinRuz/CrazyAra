@@ -1231,44 +1231,13 @@ float get_variance_cput(float visits, const SearchSettings* searchSettings)
 void Node::store_variance_in_file(float stddev, float value, int numVisits, int totalvisits) {
     //const string header = "    stddev            |    value             |    numVisits         |  totalvisits     |";
     //const string filler = "----------------------+----------------------+----------------------+------------------+";
-    ofstream outfile;
-    outfile.open("variance.txt", std::ios_base::app);
+    //ofstream outfile;
+    //outfile.open("variance.txt", std::ios_base::app);
     /*outfile << header << endl
         << std::showpoint << std::fixed << std::setprecision(7)
         << filler << endl;*/
-    outfile << setw(15) << stddev << " |  " << setw(15) << value << " | " << setw(15) << numVisits << " | " << setw(15) << totalvisits << endl;
-    outfile.close();
-}
-
-void Node::print_debug_file(const StateObj* state, const vector<size_t>& customOrdering, const SearchSettings* searchSettings, DynamicVector<float> u_term)
-{
-    const string header = "  #  | Move  |    first variance    |  second variance |  final variance  |  visits  |   min selection    |    max selection   |   final term   |   policy   |    ";
-    const string filler = "-----+-------+----------------------+------------------+------------------+----------+--------------------+--------------------+----------------+------------+";
-    ofstream outfile;
-    outfile.open("debug.txt", std::ios_base::app);
-    outfile << header << endl
-            << std::showpoint << std::fixed << std::setprecision(7)
-            << filler << endl;
-    for (int idx = 0; idx < get_number_child_nodes(); idx++) {
-
-        const size_t childIdx = customOrdering.size() == get_number_child_nodes() ? customOrdering[idx] : idx;
-        const Action move = get_legal_actions()[childIdx];
-        outfile << " " << setfill('0') << setw(3) << childIdx << " | " << setfill(' ');
-        if (state == nullptr) {
-            outfile << setw(5) << StateConstants::action_to_uci(move, false) << " | ";
-        }
-        else {
-            outfile << setw(5) << state->action_to_san(move, get_legal_actions(), false, false) << " | ";
-        }
-        outfile << setw(20) << d->stdev_one[childIdx] << " | ";
-        outfile << setw(16) << d->stdev_two[childIdx] << " | ";
-        outfile << setw(16) << d->stdDev[childIdx] << " | ";
-        outfile << setw(8) << d->childNumberVisits[childIdx] << " | ";
-        outfile << setw(18) << d->min_term[childIdx] << " | ";
-        outfile << setw(18) << d->max_term[childIdx] << " | ";
-        outfile << setw(14) << u_term[childIdx] << " | " << endl;
-    }
-    outfile.close();
+    //outfile << setw(15) << stddev << " |  " << setw(15) << value << " | " << setw(15) << numVisits << " | " << setw(15) << totalvisits << endl;
+    //outfile.close();
 }
 
 void Node::print_node_statistics(const StateObj* state, const vector<size_t>& customOrdering) const

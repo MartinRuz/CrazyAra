@@ -35,18 +35,6 @@ void NodeData::add_empty_node()
     append(stdDev, 0.05f);
     append(virtualLossCounter, uint8_t(0));
     append(nodeTypes, UNSOLVED);
-    append(stdev_one, -2.0f);
-    append(stdev_two, -2.0f);
-    append(min_term, 2000.0f);
-    append(max_term, -2000.0f);
-    append(vars, 0.05f);
-    append(welfords, 0.05f);
-    append(welfords_samples, 0.05f);
-    append(values, 0.0f);
-    append(welford_m2, 0.0f);
-    append(welford_samplevar, 0.05f);
-    append(welford_var, 0.05f);
-    append(idx, 0);
     childNodes.emplace_back(nullptr);
 }
 
