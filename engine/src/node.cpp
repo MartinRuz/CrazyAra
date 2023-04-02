@@ -472,8 +472,8 @@ void Node::apply_virtual_loss_to_child(ChildIdx childIdx, uint_fast32_t virtualL
     d->childNumberVisits[childIdx] += virtualLoss;
     d->visitSum += virtualLoss;
     //adjust power sum average and stddev
-    d->powerSumAvg[childIdx] += (virtualLoss * virtualLoss - virtualLoss*d->powerSumAvg[childIdx]) / d->childNumberVisits[childIdx];
-    d->stdDev[childIdx] = (d->powerSumAvg[childIdx] * d->childNumberVisits[childIdx] - d->childNumberVisits[childIdx] * d->qValues[childIdx] * d->qValues[childIdx]) / (d->childNumberVisits[childIdx] - 1);
+    //d->powerSumAvg[childIdx] += (virtualLoss * virtualLoss - virtualLoss*d->powerSumAvg[childIdx]) / d->childNumberVisits[childIdx];
+    //d->stdDev[childIdx] = (d->powerSumAvg[childIdx] * d->childNumberVisits[childIdx] - d->childNumberVisits[childIdx] * d->qValues[childIdx] * d->qValues[childIdx]) / (d->childNumberVisits[childIdx] - 1);
     // increment virtual loss counter
     update_virtual_loss_counter<true>(childIdx, virtualLoss);
 }
@@ -627,8 +627,8 @@ void Node::revert_virtual_loss(ChildIdx childIdx, float virtualLoss)
     //revert powersumaverage
     d->powerSumAvg[childIdx] = (d->powerSumAvg[childIdx] * d->childNumberVisits[childIdx] - virtualLoss * virtualLoss) / (d->childNumberVisits[childIdx] - virtualLoss);
     d->childNumberVisits[childIdx] -= virtualLoss;
-    d->stdDev[childIdx] = (d->powerSumAvg[childIdx] * d->childNumberVisits[childIdx] - d->childNumberVisits[childIdx] * d->qValues[childIdx] * d->qValues[childIdx])/(d->childNumberVisits[childIdx] - 1);
-    d->visitSum -= virtualLoss;
+    //d->stdDev[childIdx] = (d->powerSumAvg[childIdx] * d->childNumberVisits[childIdx] - d->childNumberVisits[childIdx] * d->qValues[childIdx] * d->qValues[childIdx])/(d->childNumberVisits[childIdx] - 1);
+    //d->visitSum -= virtualLoss;
     // decrement virtual loss counter
     update_virtual_loss_counter<false>(childIdx, virtualLoss);
     unlock();
@@ -994,12 +994,9 @@ DynamicVector<float> Node::get_current_u_values(const SearchSettings* searchSett
 #else 
     if (searchSettings->useVariance) {
         DynamicVector<float> all_stdev = d->stdDev;
-        all_stdev = 0.33 * all_stdev;
-        DynamicVector<float> exploreScaling = get_current_cput(d->visitSum, searchSettings) * blaze::subvector(all_stdev, 0, d->noVisitIdx) * sqrt(d->visitSum + 0.01);
-        DynamicVector<float> term = (exploreScaling * blaze::subvector(policyProbSmall, 0, d->noVisitIdx)) / (d->childNumberVisits + 1.0);
+        all_stdev = 0.5 * all_stdev;
     
         DynamicVector<float> add = blaze::subvector(all_stdev, 0, d->noVisitIdx) + (get_current_cput(d->visitSum, searchSettings) * sqrt(d->visitSum + 0.01) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx)) / (d->childNumberVisits + 1.0);
-        DynamicVector<float> alt = get_current_cput(d->visitSum, searchSettings) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum) / (d->childNumberVisits + 1.0));
         return add;
     } 
     else{

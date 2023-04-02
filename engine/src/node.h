@@ -210,10 +210,10 @@ public:
             // update std measurement using formula from:
             // https://subluminal.wordpress.com/2008/07/31/running-standard-deviations/#more-15
             // so we need (d->childNumberVisits[childIdx] - size_t(virtualLoss) + 1)
-            d->powerSumAvg[childIdx] = (d->powerSumAvg[childIdx] * d->childNumberVisits[childIdx] - virtualLoss * virtualLoss) / (d->childNumberVisits[childIdx] - virtualLoss);
-            d->powerSumAvg[childIdx] += (value * value - virtualLoss*d->powerSumAvg[childIdx]) / realVisitsUpdated;
+            //d->powerSumAvg[childIdx] = (d->powerSumAvg[childIdx] * d->childNumberVisits[childIdx] - virtualLoss * virtualLoss) / (d->childNumberVisits[childIdx] - virtualLoss);
+            d->powerSumAvg[childIdx] += (value * value - d->powerSumAvg[childIdx]) / realVisitsUpdated;
             if (d->childNumberVisits[childIdx] > 1) {
-                d->stdDev[childIdx] = d->childNumberVisits[childIdx] * (std::fmaxf(0.0, (d->powerSumAvg[childIdx] - d->qValues[childIdx] * d->qValues[childIdx]))) / (d->childNumberVisits[childIdx] - 1);
+                d->stdDev[childIdx] = sqrt(d->childNumberVisits[childIdx] * (std::fmaxf(0.0, (d->powerSumAvg[childIdx] - d->qValues[childIdx] * d->qValues[childIdx]))) / (d->childNumberVisits[childIdx] - 1));
             }
             
            
