@@ -221,7 +221,7 @@ public:
             d->powerSumAvg[childIdx] += (value * value - d->powerSumAvg[childIdx]) / realVisitsUpdated;
             if (d->childNumberVisits[childIdx] > 1) {
                 d->welford_samplevar[childIdx] = sqrt(d->welford_m2[childIdx] / (realVisitsUpdated - 1));
-                d->welford_var[childIdx] = d->welford_m2[childIdx] / realVisitsUpdated;
+                d->welford_var[childIdx] = sqrt(d->welford_m2[childIdx] / realVisitsUpdated);
                 d->stdDev[childIdx] = d->childNumberVisits[childIdx] * (std::fmaxf(0.0, (d->powerSumAvg[childIdx] - d->mean[childIdx] * d->mean[childIdx]))) / realVisitsUpdated;
                 
             }
