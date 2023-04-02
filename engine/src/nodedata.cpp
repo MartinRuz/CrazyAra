@@ -38,7 +38,7 @@ void NodeData::add_empty_node()
     append(nodeTypes, UNSOLVED);
     append(welford_m2, 0.0f);
     append(welford_samplevar, 0.05f);
-    append(welford_var, 0.1f);
+    append(welford_var, 0.2f);
     childNodes.emplace_back(nullptr);
 }
 
