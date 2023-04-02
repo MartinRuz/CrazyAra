@@ -33,12 +33,12 @@ void NodeData::add_empty_node()
     append(qValues, Q_INIT);
     append(mean, 0.0f);
     append(powerSumAvg, 0.0f);
-    append(stdDev, 0.05f);
+    append(stdDev, 0.0f);
     append(virtualLossCounter, uint8_t(0));
     append(nodeTypes, UNSOLVED);
     append(welford_m2, 0.0f);
-    append(welford_samplevar, 0.05f);
-    append(welford_var, 0.2f);
+    append(welford_samplevar, 0.0f);
+    append(welford_var, 0.0f);
     childNodes.emplace_back(nullptr);
 }
 
