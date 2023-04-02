@@ -1007,32 +1007,13 @@ DynamicVector<float> Node::get_current_u_values(const SearchSettings* searchSett
     info_string("bad test");
     return searchSettings->cpuctInit * (sqrt(log(d->visitSum)) / (d->childNumberVisits + FLT_EPSILON));
 #else 
-    //float maxStdev = get_best_stdev(); //TODO: is this actually more efficient than declaring it as a variable and updating it each visit?
-    //float minStdev = get_worst_stdev();
-    //float default_value = (maxStdev + minStdev) / 2;
-    //float default_value = (maxStdev - minStdev) / 2 + 0.001;
     DynamicVector<float> all_stdev = d->stdDev;
     DynamicVector<float> all_welford = d->welford_var;
     DynamicVector<float> all_welford_sample = d->welford_samplevar;
     //all_stdev = 0.5 * all_stdev;
-    /*for (int i = 0; i < all_stdev.size(); i++) {
-        if (all_stdev[i] == -1.0) {
-            all_stdev[i] = default_value;
-        }
-    }*/
-    //info_string(all_stdev);
     DynamicVector<float> exploreScaling = get_current_cput(d->visitSum, searchSettings) * blaze::subvector(all_stdev, 0, d->noVisitIdx) * sqrt(d->visitSum + 0.01);
     DynamicVector<float> term = (exploreScaling * blaze::subvector(policyProbSmall, 0, d->noVisitIdx)) / (d->childNumberVisits + 1.0);
-    //DynamicVector<float> term = get_variance_cput(d->visitSum, searchSettings) * blaze::subvector(all_stdev, 0, d->noVisitIdx) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum) / (d->childNumberVisits + 1.0));
-    /*for (int i = 0; i < term.size(); i++) {
-        if (term[i] > d->max_term[i]) {
-            d->max_term[i] = term[i];
-        }
-        if (term[i] < d->min_term[i] && term[i] > 0.000001) {
-            d->min_term[i] = term[i];
-        }
-    }*/
-    DynamicVector<float> add = blaze::subvector(all_welford_sample, 0, d->noVisitIdx) + (get_current_cput(d->visitSum, searchSettings) * sqrt(d->visitSum + 0.01) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx)) / (d->childNumberVisits + 1.0);
+    DynamicVector<float> add = blaze::subvector(all_welford, 0, d->noVisitIdx) + (get_current_cput(d->visitSum, searchSettings) * sqrt(d->visitSum + 0.01) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx)) / (d->childNumberVisits + 1.0);
     DynamicVector<float> alt = get_current_cput(d->visitSum, searchSettings) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum) / (d->childNumberVisits + 1.0));
     if (searchSettings->useVariance) {
         return add;
@@ -1246,33 +1227,6 @@ void Node::store_variance_in_file(float stddev, float value, int numVisits, int 
 
 void Node::print_debug_file(const StateObj* state, const vector<size_t>& customOrdering, const SearchSettings* searchSettings, DynamicVector<float> u_term)
 {
-    const string header = "  #  | Move  |    first variance    |  second variance |  final variance  |  visits  |   min selection    |    max selection   |   final term   |   policy   |    ";
-    const string filler = "-----+-------+----------------------+------------------+------------------+----------+--------------------+--------------------+----------------+------------+";
-    ofstream outfile;
-    outfile.open("debug.txt", std::ios_base::app);
-    outfile << header << endl
-            << std::showpoint << std::fixed << std::setprecision(7)
-            << filler << endl;
-    for (int idx = 0; idx < get_number_child_nodes(); idx++) {
-
-        const size_t childIdx = customOrdering.size() == get_number_child_nodes() ? customOrdering[idx] : idx;
-        const Action move = get_legal_actions()[childIdx];
-        outfile << " " << setfill('0') << setw(3) << childIdx << " | " << setfill(' ');
-        if (state == nullptr) {
-            outfile << setw(5) << StateConstants::action_to_uci(move, false) << " | ";
-        }
-        else {
-            outfile << setw(5) << state->action_to_san(move, get_legal_actions(), false, false) << " | ";
-        }
-        outfile << setw(20) << d->stdev_one[childIdx] << " | ";
-        outfile << setw(16) << d->stdev_two[childIdx] << " | ";
-        outfile << setw(16) << d->stdDev[childIdx] << " | ";
-        outfile << setw(8) << d->childNumberVisits[childIdx] << " | ";
-        outfile << setw(18) << d->min_term[childIdx] << " | ";
-        outfile << setw(18) << d->max_term[childIdx] << " | ";
-        outfile << setw(14) << u_term[childIdx] << " | " << endl;
-    }
-    outfile.close();
 }
 
 void Node::print_node_statistics(const StateObj* state, const vector<size_t>& customOrdering) const

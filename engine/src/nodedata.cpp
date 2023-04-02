@@ -36,22 +36,9 @@ void NodeData::add_empty_node()
     append(stdDev, 0.0f);
     append(virtualLossCounter, uint8_t(0));
     append(nodeTypes, UNSOLVED);
-    append(stdev_one, -2.0f);
-    append(stdev_two, -2.0f);
-    append(min_term, 2000.0f);
-    append(max_term, -2000.0f);
-    append(vars, 0.0f);
-    append(vars_ownmean, 0.0f);
-    append(welfords, 0.0f);
-    append(welfords_samples, 0.0f);
-    append(all_q, -2.0f);
-    append(values, 0.0f);
     append(welford_m2, 0.0f);
     append(welford_samplevar, 0.0f);
     append(welford_var, 0.0f);
-    append(means, 0.0f);
-    append(psas, 0.0f);
-    append(idx, 0);
     childNodes.emplace_back(nullptr);
 }
 
@@ -71,22 +58,9 @@ void NodeData::reserve_initial_space()
     //martin's additions
     mean.reserve(initSize);
     stdDev.reserve(initSize);
-    stdev_one.reserve(initSize);
-    stdev_two.reserve(initSize);
-    min_term.reserve(initSize);
-    max_term.reserve(initSize);
-    vars.reserve(initSize);
-    vars_ownmean.reserve(initSize);
-    welfords.reserve(initSize);
-    welfords_samples.reserve(initSize);
-    all_q.reserve(initSize);
-    values.reserve(initSize);
     welford_m2.reserve(initSize);
     welford_samplevar.reserve(initSize);
     welford_var.reserve(initSize);
-    means.reserve(initSize);
-    psas.reserve(initSize);
-    idx.reserve(initSize);
 
     childNodes.reserve(initSize);
     virtualLossCounter.reserve(initSize);
