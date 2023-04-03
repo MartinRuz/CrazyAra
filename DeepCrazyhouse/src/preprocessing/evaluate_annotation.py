@@ -23,7 +23,7 @@ def calculate_difference(zarr_folder):
         eval_search = np.array(data['eval_search'])
 
         # Calculate difference
-        diff = eval_init - eval_search
+        diff = np.abs(eval_init - eval_search)
 
         # Calculate standard deviation and min,max of difference
         std_dev = np.std(diff)
