@@ -11,9 +11,9 @@ def calculate_difference(zarr_folder):
     # Loop over all files
     for file in zarr_files:
         # Load data from file
-        store = zarr.ZipStore(file, mode="a")
+        store = zarr.ZipStore(file, mode="r")
         data = zarr.group(store=store, overwrite=False)
-
+        print(store.path)
         # Get eval_init and eval_search arrays
         eval_init = data['eval_init']
         eval_search = data['eval_search']
