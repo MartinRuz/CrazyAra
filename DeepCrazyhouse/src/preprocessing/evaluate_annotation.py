@@ -29,5 +29,5 @@ def calculate_difference(zarr_folder):
         print(f"Max difference: {max_diff}")
 
 if __name__ == "__main__":
-    zarr_folder = '/home/ml-mruzicka/modifiedplanes//train/2018-09-27-10-43-39/'
+    zarr_folder = '/home/ml-mruzicka/modifiedplanes/train/2018-09-27-10-43-39/'
     calculate_difference(zarr_folder)
