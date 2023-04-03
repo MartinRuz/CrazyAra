@@ -18,8 +18,8 @@ def calculate_difference(zarr_folder):
         data = zarr.group(store=store, overwrite=False)
         print(store.path)
         # Get eval_init and eval_search arrays
-        eval_init = data['eval_init']
-        eval_search = data['eval_search']
+        eval_init = np.array(data['eval_init'])
+        eval_search = np.array(data['eval_search'])
 
         # Calculate difference
         diff = eval_init - eval_search
