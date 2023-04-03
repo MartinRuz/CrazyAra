@@ -12,6 +12,7 @@ def calculate_difference(zarr_folder):
     zarr_files = glob.glob(zarr_folder + "*.zip")
     n = len(zarr_files)
     sum_std_dev = 0
+    num_diffs = 0
     # Loop over all files
     for file in zarr_files:
         # Load data from file
@@ -32,9 +33,11 @@ def calculate_difference(zarr_folder):
 
         sum_std_dev += std_dev
         if max_diff != 1.0:
-            print(file)
+            num_diffs += 1
     avg_std_dev = sum_std_dev/n
     print(avg_std_dev)
+    print(n)
+    print(num_diffs)
 
 if __name__ == "__main__":
     zarr_folder = '/home/ml-mruzicka/modifiedplanes/train/2018-09-27-10-43-39/'
