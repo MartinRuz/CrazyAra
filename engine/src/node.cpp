@@ -1010,10 +1010,10 @@ DynamicVector<float> Node::get_current_u_values(const SearchSettings* searchSett
     DynamicVector<float> all_stdev = d->stdDev;
     DynamicVector<float> all_welford = d->welford_var;
     DynamicVector<float> all_welford_sample = d->welford_samplevar;
-    all_welford = 0.5 * all_welford;
+    all_stdev = 0.5 * all_stdev;
     DynamicVector<float> exploreScaling = get_current_cput(d->visitSum, searchSettings) * blaze::subvector(all_stdev, 0, d->noVisitIdx) * sqrt(d->visitSum + 0.01);
     DynamicVector<float> term = (exploreScaling * blaze::subvector(policyProbSmall, 0, d->noVisitIdx)) / (d->childNumberVisits + 1.0);
-    DynamicVector<float> add = blaze::subvector(all_welford, 0, d->noVisitIdx) + (get_current_cput(d->visitSum, searchSettings) * sqrt(d->visitSum + 0.01) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx)) / (d->childNumberVisits + 1.0);
+    DynamicVector<float> add = blaze::subvector(all_stdev, 0, d->noVisitIdx) + (get_current_cput(d->visitSum, searchSettings) * sqrt(d->visitSum + 0.01) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx)) / (d->childNumberVisits + 1.0);
     DynamicVector<float> alt = get_current_cput(d->visitSum, searchSettings) * blaze::subvector(policyProbSmall, 0, d->noVisitIdx) * (sqrt(d->visitSum) / (d->childNumberVisits + 1.0));
     if (searchSettings->useVariance) {
         return add;
