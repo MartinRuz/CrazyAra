@@ -1,3 +1,5 @@
+import glob
+
 import numpy as np
 import os
 
@@ -6,7 +8,8 @@ import zarr
 
 def calculate_difference(zarr_folder):
     # Get all zarr files in folder
-    zarr_files = [f for f in os.listdir(zarr_folder) if f.endswith('.zip')]
+    print(zarr_folder)
+    zarr_files = glob.glob(zarr_folder + "*.zip")
 
     # Loop over all files
     for file in zarr_files:
