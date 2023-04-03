@@ -31,7 +31,7 @@ def calculate_difference(zarr_folder):
         max_diff = np.max(diff)
 
         sum_std_dev += std_dev
-        if min_diff != 1.0:
+        if max_diff != 1.0:
             print(file)
     avg_std_dev = sum_std_dev/n
     print(avg_std_dev)
