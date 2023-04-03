@@ -1,6 +1,8 @@
 import numpy as np
 import os
 
+import zarr
+
 
 def calculate_difference(zarr_folder):
     # Get all zarr files in folder
@@ -9,7 +11,8 @@ def calculate_difference(zarr_folder):
     # Loop over all files
     for file in zarr_files:
         # Load data from file
-        data = np.load(os.path.join(zarr_folder, file))
+        store = zarr.ZipStore(file, mode="a")
+        data = zarr.group(store=store, overwrite=False)
 
         # Get eval_init and eval_search arrays
         eval_init = data['eval_init']
