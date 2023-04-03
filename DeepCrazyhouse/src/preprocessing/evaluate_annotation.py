@@ -30,3 +30,4 @@ def calculate_difference(zarr_folder):
 
 if __name__ == "__main__":
     zarr_folder = '/home/ml-mruzicka/modifiedplanes//train/2018-09-27-10-43-39/'
+    calculate_difference(zarr_folder)
