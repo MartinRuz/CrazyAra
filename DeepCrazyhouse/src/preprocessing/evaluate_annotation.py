@@ -18,7 +18,6 @@ def calculate_difference(zarr_folder):
         # Load data from file
         store = zarr.ZipStore(file, mode="r")
         data = zarr.group(store=store, overwrite=False)
-        print(store.path)
         # Get eval_init and eval_search arrays
         eval_init = np.array(data['eval_init'])
         eval_search = np.array(data['eval_search'])
@@ -32,7 +31,7 @@ def calculate_difference(zarr_folder):
         max_diff = np.max(diff)
 
         sum_std_dev += std_dev
-        if max_diff != 1.0:
+        if max_diff >= 1.0:
             num_diffs += 1
     avg_std_dev = sum_std_dev/n
     print(avg_std_dev)
