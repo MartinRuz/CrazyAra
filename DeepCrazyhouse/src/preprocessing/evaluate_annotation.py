@@ -33,6 +33,7 @@ def calculate_difference(zarr_folder):
         sum_std_dev += std_dev
         if max_diff >= 1.0:
             num_diffs += 1
+            print(max_diff)
     avg_std_dev = sum_std_dev/n
     print(avg_std_dev)
     print(n)
