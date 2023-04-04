@@ -35,9 +35,9 @@ def calculate_difference(zarr_folder):
         sum_std_dev += std_dev
         sum_mean += mean
     avg_std_dev = sum_std_dev/n
+    avg_mean = sum_mean/n
     print(avg_std_dev)
-    print(n)
-    print(num_diffs)
+    print(avg_mean)
 
 if __name__ == "__main__":
     zarr_folder = '/home/ml-mruzicka/modifiedplanes/train/2018-09-27-10-43-39/'
