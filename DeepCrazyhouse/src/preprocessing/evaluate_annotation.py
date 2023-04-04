@@ -12,6 +12,7 @@ def calculate_difference(zarr_folder):
     zarr_files = glob.glob(zarr_folder + "*.zip")
     n = len(zarr_files)
     sum_std_dev = 0
+    sum_mean = 0
     num_diffs = 0
     # Loop over all files
     for file in zarr_files:
@@ -27,14 +28,12 @@ def calculate_difference(zarr_folder):
 
         # Calculate standard deviation and min,max of difference
         std_dev = np.std(diff)
+        mean = np.mean(diff)
         min_diff = np.min(diff)
         max_diff = np.max(diff)
 
         sum_std_dev += std_dev
-        if file == '/home/ml-mruzicka/modifiedplanes/train/2018-09-27-10-43-39/lichess_db_crazyhouse_rated_2018-02_6.zip':
-            print(len(diff))
-            print(len(eval_init))
-            print(len(eval_search))
+        sum_mean += mean
     avg_std_dev = sum_std_dev/n
     print(avg_std_dev)
     print(n)
